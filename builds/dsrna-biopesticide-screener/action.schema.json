@@ -1,0 +1,30 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "dsRNA Biopesticide Dossier Screener Action", "version": "1.0.0" },
+  "servers": [ { "url": "https://REPLACE-with-your-hf-space.hf.space", "x-backend": "not-provisioned" } ],
+  "paths": {
+    "/run": {
+      "post": {
+        "operationId": "runDsrnaScreen",
+        "summary": "Pre-screen a dsRNA/RNAi biopesticide candidate for regulatory risk.",
+        "requestBody": { "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunInput" } } } },
+        "responses": { "200": { "description": "Screen result",
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunOutput" } } } } }
+      }
+    }
+  },
+  "components": { "schemas": {
+    "RunInput": { "type":"object", "required":["gc","len","offtarget","nontarget"], "properties":{
+      "gc":{"type":"number","minimum":20,"maximum":70,"description":"dsRNA GC content, percent."},
+      "len":{"type":"integer","minimum":100,"maximum":1000,"description":"Construct length in base pairs."},
+      "offtarget":{"type":"integer","minimum":0,"maximum":40,"description":"Predicted off-target hit count."},
+      "nontarget":{"type":"string","enum":["none","low","moderate","high"],"description":"Non-target taxa sequence overlap."}
+    }},
+    "RunOutput": { "type":"object", "required":["score","band"], "properties":{
+      "score":{"type":"number","minimum":0,"maximum":1,"description":"Composite risk score."},
+      "band":{"type":"string","enum":["PASS","FLAG","FAIL"],"description":"Screen verdict."},
+      "factors":{"type":"object","description":"Per-factor normalized contributions."}
+    }}
+  }}
+}

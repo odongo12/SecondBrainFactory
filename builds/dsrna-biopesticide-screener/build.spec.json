@@ -1,0 +1,19 @@
+{
+  "slug": "dsrna-biopesticide-screener",
+  "gpt": { "name":"dsRNA Biopesticide Dossier Screener",
+           "description":"Regulatory pre-screen for dsRNA/RNAi biopesticide dossiers.",
+           "url":"https://chatgpt.com/g/g-EXAMPLE-dsrna-screener","action_base_url":null },
+  "archetype": "risk-screener",
+  "inputs": [
+    {"id":"gc","label":"dsRNA GC content","type":"slider","default":48,"min":20,"max":70,"unit":"%"},
+    {"id":"len","label":"Construct length","type":"slider","default":480,"min":100,"max":1000,"unit":"bp"},
+    {"id":"offtarget","label":"Predicted off-target hits","type":"slider","default":3,"min":0,"max":40,"unit":""},
+    {"id":"nontarget","label":"Non-target taxa overlap","type":"enum","default":"low","options":["none","low","moderate","high"]}
+  ],
+  "outputs": [
+    {"id":"score","label":"Risk score","type":"scalar"},
+    {"id":"band","label":"Verdict","type":"label"}
+  ],
+  "panels": ["verdict-gauge","factor-bars","threshold-slider-curve","case-table"],
+  "theme_hint": "molecular-bio instrument panel: dark teal/forest greens, amber flag, ember fail"
+}

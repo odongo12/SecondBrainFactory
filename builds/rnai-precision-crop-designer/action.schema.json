@@ -1,0 +1,33 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "RNAi Precision Crop Designer Action", "version": "1.0.0" },
+  "servers": [ { "url": "https://REPLACE-with-your-space.hf.space", "x-backend": "not-provisioned" } ],
+  "paths": { "/run": { "post": {
+    "operationId": "runRnaiDesign",
+    "summary": "Design and screen an RNAi construct across the seven-stage pipeline.",
+    "requestBody": { "required": true,
+      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunInput" } } } },
+    "responses": { "200": { "description": "Design + screen result",
+      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunOutput" } } } } }
+  } } },
+  "components": { "schemas": {
+    "RunInput": { "type":"object", "required":["gc","len","dose","strin","temp","crop"], "properties":{
+      "gc":{"type":"number","minimum":25,"maximum":70,"description":"dsRNA GC content, percent."},
+      "len":{"type":"integer","minimum":100,"maximum":800,"description":"Construct length, base pairs."},
+      "dose":{"type":"number","minimum":1,"maximum":120,"description":"Applied dose, ng/uL."},
+      "strin":{"type":"number","minimum":40,"maximum":100,"description":"BLAST off-target stringency, percent."},
+      "temp":{"type":"number","minimum":8,"maximum":40,"description":"Field temperature, degrees C."},
+      "crop":{"type":"string","enum":["maize","cassava","tomato","cowpea"],"description":"Host crop."}
+    }},
+    "RunOutput": { "type":"object", "required":["eff","hits","band"], "properties":{
+      "eff":{"type":"number","minimum":0,"maximum":1,"description":"Predicted silencing efficiency, 0-1."},
+      "stability":{"type":"number","description":"Duplex stability index, 0-1."},
+      "specificity":{"type":"number","description":"Specificity index, 0-1."},
+      "hits":{"type":"integer","description":"Predicted off-target BLAST hits."},
+      "ec50":{"type":"number","description":"Half-maximal dose, ng/uL."},
+      "persist":{"type":"number","description":"Soil persistence, days."},
+      "nontarget":{"type":"number","minimum":0,"maximum":1,"description":"Non-target exposure index."},
+      "band":{"type":"string","enum":["LOW","MODERATE","HIGH"],"description":"Non-target risk band."}
+    }}
+  }}
+}

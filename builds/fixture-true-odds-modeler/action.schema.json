@@ -1,0 +1,26 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Fixture True-Odds Modeler Action", "version": "1.0.0" },
+  "servers": [ { "url": "https://REPLACE-with-your-space.hf.space", "x-backend": "not-provisioned" } ],
+  "paths": { "/run": { "post": {
+    "operationId": "runTrueOdds",
+    "summary": "De-vig a fixture market and return fair 1X2 probabilities and decimal odds.",
+    "requestBody": { "required": true,
+      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunInput" } } } },
+    "responses": { "200": { "description": "Fair-odds model",
+      "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RunOutput" } } } } }
+  } } },
+  "components": { "schemas": {
+    "RunInput": { "type":"object", "required":["atk","def","hadv","vig"], "properties":{
+      "atk":{"type":"number","minimum":0.4,"maximum":2.6,"description":"Home team attack strength index."},
+      "def":{"type":"number","minimum":0.4,"maximum":2.6,"description":"Away team defence strength index."},
+      "hadv":{"type":"number","minimum":0,"maximum":0.6,"description":"Home advantage multiplier component."},
+      "vig":{"type":"number","minimum":0,"maximum":15,"description":"Bookmaker overround, percent."}
+    }},
+    "RunOutput": { "type":"object", "required":["score","lambda"], "properties":{
+      "score":{"type":"number","minimum":0,"maximum":1,"description":"Fair probability of a home win."},
+      "lambda":{"type":"number","description":"Expected home goals."},
+      "table":{"type":"array","items":{"type":"array","items":{"type":"string"}},"description":"Two-column fair-odds book."}
+    }}
+  }}
+}

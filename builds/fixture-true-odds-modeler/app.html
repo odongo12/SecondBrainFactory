@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixture True-Odds Modeler — Executable Infographic</title>
+<!-- SECOND BRAIN FACTORY — retarget #2. Archetype: quant-model.
+     Same OS, same panel library, different CFG. Panels: param-sliders,
+     distribution-curve, sensitivity-heat, outcome-table. -->
+<style>
+  :root{
+    /* domain theme: trading terminal — ink navy, sodium amber, mint edge */
+    --bg:#0a0f1c; --panel:#111a2e; --panel-2:#0d1526; --line:#22304a;
+    --ink:#e3e9f5; --ink-dim:#8296b5; --teal:#4dd6a8; --amber:#ffb547; --flag:#ff6b6b;
+    --pass:#4dd6a8; --fail:#ff6b6b; --focus:#8ef0cd;
+    --r:14px; --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1100px 640px at 50% -12%,#13203a,var(--bg));
+    color:var(--ink);font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 18px 60px}
+  header.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
+  h1{font-size:clamp(20px,3vw,30px);margin:.15em 0 .1em;font-weight:600;letter-spacing:-.01em}
+  .sub{color:var(--ink-dim);max-width:62ch;font-size:14px;line-height:1.5}
+  button.tool{background:var(--panel);color:var(--ink);border:1px solid var(--line);
+    padding:9px 13px;border-radius:10px;font:inherit;font-size:13px;cursor:pointer}
+  button.tool:hover{border-color:var(--teal)}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  .grid{display:grid;gap:14px;grid-template-columns:1fr 1.15fr 1fr;
+    grid-template-areas:"p1 core p2" "p3 core p4"}
+  @media(max-width:860px){.grid{grid-template-columns:1fr;grid-template-areas:"core" "p1" "p2" "p3" "p4"}}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);
+    border-radius:var(--r);padding:14px;box-shadow:var(--shadow);position:relative;min-height:180px;
+    display:flex;flex-direction:column;overflow:hidden}
+  .card h3{margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+  .card .exp{position:absolute;top:10px;right:10px;font-size:11px;color:var(--ink-dim);background:transparent;
+    border:1px solid var(--line);border-radius:8px;padding:3px 7px;cursor:pointer}
+  .card .exp:hover{color:var(--teal);border-color:var(--teal)}
+  #core{grid-area:core}#p1{grid-area:p1}#p2{grid-area:p2}#p3{grid-area:p3}#p4{grid-area:p4}
+  .corehead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal)}
+  .mode{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);
+    border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+  .field{margin:9px 0}
+  .field label{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);margin-bottom:4px}
+  .field .val{color:var(--teal);font-family:ui-monospace,Menlo,monospace}
+  input[type=range]{width:100%;accent-color:var(--teal)}
+  select{width:100%;background:#08101f;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px;font:inherit;font-size:13px}
+  .cta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .cta button{flex:1;min-width:130px;border:none;border-radius:10px;padding:11px;font:inherit;font-weight:600;cursor:pointer}
+  .go{background:var(--teal);color:#04140e}
+  .open{background:transparent;color:var(--ink);border:1px solid var(--line)!important}
+  .answer{margin-top:10px;background:#08101f;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;line-height:1.55;min-height:40px}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+  canvas{width:100%;height:auto;display:block}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--ink-dim);font-weight:600}
+  .foot{margin-top:22px;color:var(--ink-dim);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap" id="approot">
+  <header class="top">
+    <div>
+      <div class="brand">Second Brain Factory · Executable Infographic</div>
+      <h1 id="title">Fixture True-Odds Modeler</h1>
+      <p class="sub">Strips the bookmaker margin and rebuilds a fair scoreline distribution from team strength. Move the inputs — the goal distribution, the sensitivity surface, and the outcome book all re-derive live. The GPT holds the authoritative reasoning.</p>
+    </div>
+    <div class="toolbar">
+      <button class="tool" onclick="downloadAll()">Download all</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card" id="p1"><button class="exp" data-p="param-sliders">Export</button>
+      <h3>Model parameters</h3><div id="h-p1"></div></section>
+
+    <section class="card" id="p2"><button class="exp" data-p="distribution-curve">Export</button>
+      <h3>Goal distribution</h3><div id="h-p2"></div></section>
+
+    <section class="card" id="core">
+      <div class="corehead"><span class="dot"></span><span id="gptname">Custom GPT</span><span class="mode" id="modeTag">deep-link</span></div>
+      <div id="controls"></div>
+      <div class="cta">
+        <button class="go" onclick="runCore()">Model fixture</button>
+        <button class="open" onclick="openGPT()">Open in ChatGPT ↗</button>
+      </div>
+      <div class="answer" id="answer">Set the inputs, then <b>Model fixture</b>. The panels around this core re-derive from the same values.</div>
+    </section>
+
+    <section class="card" id="p3"><button class="exp" data-p="sensitivity-heat">Export</button>
+      <h3>Sensitivity surface</h3><div id="h-p3"></div></section>
+
+    <section class="card" id="p4"><button class="exp" data-p="outcome-table">Export</button>
+      <h3>Fair odds book</h3><div id="h-p4" style="overflow:auto"></div></section>
+  </div>
+
+  <p class="foot">Retarget #2 — same OS, same panel library, new CFG. The infographic is the interface; the GPT is the engine behind it.</p>
+</div>
+
+<script id="cfg">
+const CFG = {
+  gpt: { name:"Fixture True-Odds Modeler",
+         url:"https://chatgpt.com/g/g-EXAMPLE-true-odds",
+         action_base_url:null },
+  archetype:"quant-model",
+  inputs:[
+    {id:"atk",  label:"Home attack strength", type:"slider", def:1.35, min:0.4, max:2.6, step:0.05, unit:""},
+    {id:"def",  label:"Away defence strength", type:"slider", def:1.05, min:0.4, max:2.6, step:0.05, unit:""},
+    {id:"hadv", label:"Home advantage",        type:"slider", def:0.25, min:0,   max:0.6, step:0.05, unit:""},
+    {id:"vig",  label:"Bookmaker overround",   type:"slider", def:6,    min:0,   max:15,  step:0.5,  unit:"%"}
+  ],
+  mockRun(s){
+    const lambda = Math.max(.1, (+s.atk) * (+s.def) * (1 + (+s.hadv)));   // expected home goals
+    const lamA   = Math.max(.1, (+s.def) * (+s.atk) * 0.72);              // expected away goals
+    const P=(k,l)=>{let lf=0;for(let i=2;i<=k;i++)lf+=Math.log(i);
+      return Math.exp(-l+k*Math.log(l||1e-9)-lf);};
+    let H=0,D=0,A=0;
+    for(let i=0;i<=9;i++) for(let j=0;j<=9;j++){ const p=P(i,lambda)*P(j,lamA);
+      if(i>j)H+=p; else if(i===j)D+=p; else A+=p; }
+    const tot=H+D+A; H/=tot; D/=tot; A/=tot;
+    const v=1+(+s.vig)/100;                       // book prices = fair prices shaded by the vig
+    const dec=p=>(1/p);
+    return {
+      score: H, band: H>0.5?"PASS":H>0.33?"FLAG":"FAIL",
+      lambda,
+      factors:{ attack:+s.atk/2.6, defence:+s.def/2.6, home_adv:+s.hadv/0.6, vig:+s.vig/15 },
+      weights:{ attack:.35, defence:.30, home_adv:.20, vig:.15 },
+      table:[
+        ["Expected home goals (λ)", lambda.toFixed(2)],
+        ["Expected away goals",     lamA.toFixed(2)],
+        ["Fair home odds",  dec(H).toFixed(2)],
+        ["Fair draw odds",  dec(D).toFixed(2)],
+        ["Fair away odds",  dec(A).toFixed(2)],
+        ["Book home odds (post-vig)", (dec(H)/v).toFixed(2)],
+        ["Implied edge if book offers fair", ((v-1)*100).toFixed(1)+"%"]
+      ]
+    };
+  },
+  promptTemplate(s){
+    return `Model this fixture's true odds.\nHome attack: ${s.atk}\nAway defence: ${s.def}\n`+
+      `Home advantage: ${s.hadv}\nBookmaker overround: ${s.vig}%\n`+
+      `De-vig the market, return fair 1X2 probabilities, decimal odds, and where the value sits.`;
+  }
+};
+</script>
+
+<script>
+/* ---- bus ---- */
+const Bus=(()=>{const st={},subs=[];return{set(p){Object.assign(st,p);subs.forEach(f=>f(st));},
+  get(){return{...st};},subscribe(f){subs.push(f);f(st);}};})();
+
+/* ---- panel library (subset, verbatim from 10-TEMPLATES/panels.lib.js) ---- */
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+function ctx(cv){const x=cv.getContext("2d");x.clearRect(0,0,cv.width,cv.height);return x;}
+function axes(x,W,H,p){x.strokeStyle=css('--line');x.lineWidth=1;x.beginPath();
+  x.moveTo(p,H-p);x.lineTo(W-4,H-p);x.moveTo(p,4);x.lineTo(p,H-p);x.stroke();}
+function plot(x,pts,W,H,p,c){x.strokeStyle=c;x.lineWidth=2;x.beginPath();
+  const mx=Math.max(...pts.map(q=>q[1]))||1;
+  pts.forEach(([a,b],i)=>{const X=p+a*(W-p-6),Y=(H-p)-(b/mx)*(H-p-8);i?x.lineTo(X,Y):x.moveTo(X,Y);});
+  x.stroke();return mx;}
+const toCSV=(h,r)=>h.join(",")+"\n"+r.map(x=>x.join(",")).join("\n");
+const M={poissonPMF:(k,l)=>{let lf=0;for(let i=2;i<=k;i++)lf+=Math.log(i);
+  return Math.exp(-l+k*Math.log(l||1e-9)-lf);}};
+
+const PanelLib={};
+PanelLib["param-sliders"]=(cfg,Bus)=>({id:"param-sliders",accepts:cfg.inputs.map(i=>i.id),
+  mount(el){cfg.inputs.forEach(inp=>{const w=document.createElement("div");w.className="field";
+    w.innerHTML=`<label>${inp.label}<span class="val">${inp.def}${inp.unit||""}</span></label>
+      <input type="range" min="${inp.min}" max="${inp.max}" step="${inp.step||1}" value="${inp.def}" aria-label="${inp.label}">`;
+    w.querySelector("input").oninput=e=>{const v=+e.target.value;
+      w.querySelector(".val").textContent=v+(inp.unit||"");Bus.set({[inp.id]:v});};
+    el.appendChild(w);});},
+  render(s){this._json=cfg.inputs.reduce((a,i)=>(a[i.id]=s[i.id],a),{});},
+  export(){return{json:this._json};}});
+
+PanelLib["distribution-curve"]=(cfg)=>({id:"distribution-curve",accepts:["result"],
+  mount(el){this.cv=Object.assign(document.createElement("canvas"),{width:360,height:200});el.appendChild(this.cv);},
+  render(s){const o=s.result||cfg.mockRun(s),x=ctx(this.cv),W=this.cv.width,H=this.cv.height,p=22;axes(x,W,H,p);
+    const L=o.lambda,K=10,rows=[];
+    const pts=Array.from({length:K+1},(_,k)=>{const q=M.poissonPMF(k,L);rows.push([k,q.toFixed(4)]);return[k/K,q];});
+    const mx=plot(x,pts,W,H,p,css('--teal'));
+    pts.forEach(([a,b])=>{x.fillStyle=css('--amber');
+      x.beginPath();x.arc(p+a*(W-p-6),(H-p)-(b/mx)*(H-p-8),2.5,0,7);x.fill();});
+    x.fillStyle=css('--ink-dim');x.font="11px sans-serif";x.textAlign="left";
+    x.fillText(`Poisson λ=${L.toFixed(2)} home goals`,p+4,14);
+    this._csv=toCSV(["goals","p"],rows);},
+  export(){return{png:this.cv,csv:this._csv};}});
+
+PanelLib["sensitivity-heat"]=(cfg)=>({id:"sensitivity-heat",accepts:cfg.inputs.map(i=>i.id),
+  mount(el){this.cv=Object.assign(document.createElement("canvas"),{width:360,height:200});el.appendChild(this.cv);},
+  render(s){const x=ctx(this.cv),W=this.cv.width,H=this.cv.height;
+    const [a,b]=cfg.inputs.slice(0,2),N=24,cw=W/N,ch=H/N,rows=[];
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+      const va=a.min+(a.max-a.min)*(i/(N-1)),vb=b.min+(b.max-b.min)*(j/(N-1));
+      const v=cfg.mockRun({...s,[a.id]:va,[b.id]:vb}).score;
+      x.fillStyle=v<.34?`rgba(255,107,107,${.2+v})`:v<.5?`rgba(255,181,71,${.2+v})`:`rgba(77,214,168,${.2+v})`;
+      x.fillRect(i*cw,H-(j+1)*ch,cw+1,ch+1);
+      if(i%6===0&&j%6===0)rows.push([va.toFixed(2),vb.toFixed(2),v.toFixed(3)]);}
+    x.fillStyle=css('--ink');x.font="11px sans-serif";x.textAlign="left";
+    x.fillText("home attack →",6,H-6);x.fillText("↑ away defence",6,14);
+    this._csv=toCSV([a.id,b.id,"P(home win)"],rows);},
+  export(){return{png:this.cv,csv:this._csv};}});
+
+PanelLib["outcome-table"]=(cfg)=>({id:"outcome-table",accepts:["result"],
+  mount(el){this.el=el;},
+  render(s){const o=s.result||cfg.mockRun(s),rows=o.table;
+    this.el.innerHTML=`<table><thead><tr><th>Quantity</th><th>Value</th></tr></thead><tbody>`+
+      rows.map(r=>`<tr><td>${r[0]}</td><td style="font-family:ui-monospace,monospace;color:var(--teal)">${r[1]}</td></tr>`).join("")+
+      `</tbody></table>`;
+    this._csv=toCSV(["quantity","value"],rows);},
+  export(){return{csv:this._csv};}});
+
+/* ---- center core ---- */
+CFG.mode = CFG.gpt.action_base_url ? "live" : "deeplink";
+document.getElementById("gptname").textContent=CFG.gpt.name;
+document.getElementById("modeTag").textContent=CFG.mode==="live"?"live · action":"deep-link";
+const ctr=document.getElementById("controls"),init={};
+CFG.inputs.forEach(inp=>{ init[inp.id]=inp.def;
+  const w=document.createElement("div"); w.className="field";
+  w.innerHTML=`<label>${inp.label}<span class="val">${inp.def}${inp.unit||""}</span></label>
+    <input type="range" min="${inp.min}" max="${inp.max}" step="${inp.step||1}" value="${inp.def}" aria-label="${inp.label}">`;
+  w.querySelector("input").oninput=e=>{const v=+e.target.value;
+    w.querySelector(".val").textContent=v+(inp.unit||""); Bus.set({[inp.id]:v});};
+  ctr.appendChild(w); });
+
+async function runCore(){ const s=Bus.get(), a=document.getElementById("answer");
+  if(CFG.mode==="live"){ a.textContent="Calling GPT action…";
+    try{ const r=await fetch(CFG.gpt.action_base_url+"/run",{method:"POST",
+      headers:{"Content-Type":"application/json"},body:JSON.stringify(s)});
+      if(!r.ok) throw new Error("backend "+r.status);
+      const o=await r.json(); show(o,false); Bus.set({result:o});
+    }catch(e){ const o=CFG.mockRun(s); show(o,true); Bus.set({result:o}); }
+  } else { const o=CFG.mockRun(s); show(o,true); Bus.set({result:o});
+    navigator.clipboard&&navigator.clipboard.writeText(CFG.promptTemplate(s)); } }
+function show(o,local){ const c=o.score>0.5?"var(--pass)":o.score>0.33?"var(--amber)":"var(--fail)";
+  document.getElementById("answer").innerHTML=
+    `<span class="badge" style="background:${c};color:#04140e">P(home) ${(o.score*100).toFixed(1)}%</span> `+
+    `λ = <b>${o.lambda.toFixed(2)}</b> expected home goals. `+
+    (local?`<span style="color:var(--ink-dim)">Local model — prompt copied; open the GPT for the full read.</span>`
+          :`<span style="color:var(--ink-dim)">Live GPT action result.</span>`); }
+function openGPT(){ navigator.clipboard&&navigator.clipboard.writeText(CFG.promptTemplate(Bus.get()));
+  window.open(CFG.gpt.url,"_blank","noopener"); }
+
+/* ---- wire ---- */
+const PANELS=[
+  PanelLib["param-sliders"](CFG,Bus),
+  PanelLib["distribution-curve"](CFG,Bus),
+  PanelLib["sensitivity-heat"](CFG,Bus),
+  PanelLib["outcome-table"](CFG,Bus)
+];
+["h-p1","h-p2","h-p3","h-p4"].forEach((h,i)=>PANELS[i].mount(document.getElementById(h),CFG));
+PANELS.forEach(p=>Bus.subscribe(st=>p.render(st)));
+Bus.set(init);
+
+function saveBlob(b,n){const u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),400);}
+function downloadPanel(p){const o=p.export()||{};
+  if(o.png) o.png.toBlob(b=>saveBlob(b,p.id+".png"));
+  if(o.csv) saveBlob(new Blob([o.csv],{type:"text/csv"}),p.id+".csv");
+  if(o.json)saveBlob(new Blob([JSON.stringify(o.json,null,2)],{type:"application/json"}),p.id+".json");}
+function downloadAll(){PANELS.forEach(downloadPanel);}
+document.querySelectorAll(".exp").forEach(b=>b.onclick=()=>{
+  const p=PANELS.find(x=>x.id===b.dataset.p); p&&downloadPanel(p);});
+</script>
+</body>
+</html>
