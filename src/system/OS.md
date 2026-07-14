@@ -14,7 +14,7 @@ order; each stage consumes the previous stage's output.
 
 ## The one thing the user supplies
 
-The user edits exactly ONE file: `90-INTAKE/intake.md`. They fill in three fields:
+The user edits exactly ONE file: `src/intake.md`. They fill in three fields:
 
 ```yaml
 gpt_name:        # e.g. "dsRNA Biopesticide Dossier Screener"
@@ -72,30 +72,30 @@ and the GPT share one backend contract.
 
 | Stage | File | Produces |
 |-------|------|----------|
-| 0 | `90-INTAKE/intake.md` | the 3 user fields |
+| 0 | `src/intake.md` | the 3 user fields |
 | 1 | `01-ANALYZER.md` | `build.spec.json` — inferred domain, inputs, outputs, panel picks |
 | 2 | `02-SCHEMA-FORGE.md` | `action.schema.json` — OpenAPI action schema |
 | 3 | `03-EMBEDDER.md` | the center-core config (deep-link + action bridge) |
 | 4 | `04-MORPHIC-PANELS.md` | selected panels wired to the input bus |
-| 5 | `05-BUILD.md` | `20-BUILDS/<slug>/app.html` + `poster.png` |
+| 5 | `05-BUILD.md` | `builds/<slug>/app.html` + `poster.png` |
 | 6 | `06-VALIDATE.md` | pass/fail report |
 
-**Before Stage 4, read `10-TEMPLATES/panels.lib.js`.** It is the real, working
+**Before Stage 4, read `src/templates/panels.lib.js`.** It is the real, working
 implementation of the panel registry. Reuse panels from it; do not rewrite them.
 **Before any second build, read `07-RETARGET.md`** — it states the invariant:
 change CFG, theme, and panel selection only; never touch the Bus, the panel
 contract, or the download layer.
 
-After Stage 5, write a short build note to `20-BUILDS/<slug>/README.md` and,
+After Stage 5, write a short build note to `builds/<slug>/README.md` and,
 if the vault has a memory/garden loop, log the panel picks so future builds
 reuse proven panels.
 
 ## Slug rule
 
 `<slug>` = kebab-case of `gpt_name`, deduped. All artifacts for one GPT live in
-`20-BUILDS/<slug>/`.
+`builds/<slug>/`.
 
 ## Start
 
-Read `90-INTAKE/intake.md`. If any of the 3 required fields is blank, stop and
+Read `src/intake.md`. If any of the 3 required fields is blank, stop and
 ask the user only for the missing field. Otherwise proceed to `01-ANALYZER.md`.

@@ -30,6 +30,6 @@ one-line reason. Do not ship a build with any FAIL in the "must" set.
 
 ## Log
 Append the panel picks + any new panel you invented to
-`00-SYSTEM/panel-ledger.md` so the next build reuses proven components (the
+`src/system/panel-ledger.md` so the next build reuses proven components (the
 vault gardening loop). Then tell the user the build path and the 3 things they
 can do next: open locally, host it, or paste the schema into the GPT.

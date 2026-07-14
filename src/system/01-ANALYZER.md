@@ -2,8 +2,8 @@
 name: 01-ANALYZER
 role: stage-1
 read_order: 2
-consumes: 90-INTAKE/intake.md
-produces: 20-BUILDS/<slug>/build.spec.json
+consumes: src/intake.md
+produces: builds/<slug>/build.spec.json
 ---
 
 # STAGE 1 — ANALYZER
@@ -21,12 +21,19 @@ Read the description. Match to the closest **domain archetype** (extend freely):
 | `risk-screener` | screen, assess, dossier, compliance, flag, refuse | a case/record | verdict + score + rationale |
 | `quant-model` | predict, odds, probability, forecast, model, Poisson | numeric params | distribution / number |
 | `dose-response` | dose, concentration, EC50, exposure, toxicity | dose vector | response curve |
+| `pipeline-designer` | pipeline, stages, workflow, design → validate, steps | construct/build params | staged result |
 | `geo-ops` | border, route, location, region, map, coordinates | places | map + route |
 | `text-transform` | rewrite, summarize, translate, extract, classify | text | text |
 | `designer` | generate, layout, plan, itinerary, schedule | constraints | structured plan |
 | `explainer` | teach, explain, tutor, walk through | topic + level | staged explanation |
 
 If nothing fits, set `archetype: "generic"` and use the generic panel set.
+
+A GPT can straddle two archetypes (e.g. a `pipeline-designer` with a `dose-response`
+panel embedded in one stage — see `builds/rnai-precision-crop-designer/`). When
+that happens, take the pipeline's *shape* for the layout and borrow the other
+archetype's panels for that stage. The archetype decides the layout; the
+input/output contract decides the panels.
 
 ## Step 2 — Extract the input contract
 
@@ -51,6 +58,7 @@ and re-render when it changes.** Panels that can't morph on input are decoration
 - `risk-screener` → `verdict-gauge`, `factor-bars`, `threshold-slider-curve`, `case-table`
 - `quant-model` → `distribution-curve`, `param-sliders`, `sensitivity-heat`, `outcome-table`
 - `dose-response` → `dose-curve`, `param-sliders`, `threshold-marker`, `series-table`
+- `pipeline-designer` → `stage-wheel`, `sequence-track`, `dose-curve`, `decay-curve` (pick per-stage panels that fit the pipeline's actual domain)
 - `geo-ops` → `map-canvas`, `route-list`, `param-sliders`
 - `text-transform` → `before-after`, `token-meter`, `diff-view`
 - `designer` → `timeline-canvas`, `param-sliders`, `plan-table`
@@ -71,4 +79,4 @@ and re-render when it changes.** Panels that can't morph on input are decoration
 }
 ```
 
-Write it to `20-BUILDS/<slug>/build.spec.json`, then proceed to `02-SCHEMA-FORGE.md`.
+Write it to `builds/<slug>/build.spec.json`, then proceed to `02-SCHEMA-FORGE.md`.

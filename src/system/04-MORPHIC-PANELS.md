@@ -80,6 +80,27 @@ Explainer panels: stepper through GPT-returned stages, a small node graph of
 concepts, a progress meter tied to `state.level`.
 Export: PNG, JSON.
 
+### `stage-wheel`
+The `pipeline-designer` core visual: a clickable/keyboard-focusable N-stage
+SVG wheel driven by `cfg.stages` (`[title, desc, color]` per stage). Writes
+`stage` to the bus so every other panel and the methodology list can
+highlight the active stage together.
+Export: JSON (stage list + current index).
+
+### `sequence-track`
+Deterministic PRNG-seeded sequence generator (same inputs → same construct,
+every time) plus a sliding-window composition chart. Retarget via
+`cfg.sequenceTrack = { compositionId, lengthId, label, alphabetHigh, alphabetLow }`
+— defaults match the biology case (GC%/length) it was first built for, but any
+two-symbol composition-over-length domain retargets by config alone.
+Export: PNG, CSV, JSON (full sequence).
+
+### `decay-curve`
+Exponential decay of a `result` field (e.g. persistence, half-life) over N
+days/steps, banded by a risk/verdict field. Retarget via
+`cfg.decayCurve = { rateField, bandField, days, label }`.
+Export: PNG, CSV.
+
 ## Download layer (shared)
 
 One toolbar function serves all panels:

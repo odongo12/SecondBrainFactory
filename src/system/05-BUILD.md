@@ -3,7 +3,7 @@ name: 05-BUILD
 role: stage-5
 read_order: 6
 consumes: build.spec.json, action.schema.json, center config, panels
-produces: 20-BUILDS/<slug>/app.html, poster.png, README.md
+produces: builds/<slug>/app.html, poster.png, README.md
 ---
 
 # STAGE 5 — BUILD (assembly)
@@ -13,7 +13,7 @@ deps except optional CDNs you inline or vendor. It must open by double-click.
 
 ## Procedure
 
-1. Copy `10-TEMPLATES/infographic.template.html` to `20-BUILDS/<slug>/app.html`.
+1. Copy `src/templates/infographic.template.html` to `builds/<slug>/app.html`.
 2. Inject the `CFG` object built in Stage 3 (inputs, outputs, urls, mode,
    `mockRun`, `promptTemplate`) into the `<script id="cfg">` block.
 3. From the registry (Stage 4), paste ONLY the selected panels' implementations
@@ -40,7 +40,7 @@ the flat image still routes back to the live app + GPT.
 
 ## Emit README.md
 
-Write `20-BUILDS/<slug>/README.md`:
+Write `builds/<slug>/README.md`:
 - what the GPT does, the archetype, the chosen panels and why
 - mode (live vs deep-link) and the `action_base_url`
 - how to host (open locally, or drop on GitHub Pages / HF Static Space)

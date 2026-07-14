@@ -3,7 +3,7 @@ name: 02-SCHEMA-FORGE
 role: stage-2
 read_order: 3
 consumes: build.spec.json
-produces: 20-BUILDS/<slug>/action.schema.json
+produces: builds/<slug>/action.schema.json
 ---
 
 # STAGE 2 — SCHEMA FORGE
@@ -74,4 +74,4 @@ If `action_base_url` is null and the user wants live inline answers, the minimal
 backend is a FastAPI/HF Space exposing `POST /run` that validates against
 `RunInput` (pydantic) and returns `RunOutput`. The same URL goes into both the
 GPT's Actions config and `build.spec.json.gpt.action_base_url`. Point the user to
-`10-TEMPLATES/backend.stub.py`.
+`src/templates/backend.stub.py`.

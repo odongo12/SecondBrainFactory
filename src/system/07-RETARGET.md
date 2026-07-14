@@ -20,7 +20,7 @@ in `CFG` + panel selection + theme. Read both before building a third.
 
 ## Retarget checklist
 
-1. **Do NOT write new panel code first.** Open `10-TEMPLATES/panels.lib.js` and
+1. **Do NOT write new panel code first.** Open `src/templates/panels.lib.js` and
    check the registry. Reuse beats reinvent — a reused panel is already
    validated. Only write a new panel if the archetype genuinely needs a view the
    library lacks, and then append it to the library + log it in the ledger.
