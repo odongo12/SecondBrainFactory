@@ -49,6 +49,27 @@ Note: a static screenshot taken immediately on page load will likely show
 actual browser session, this is just a timing artifact of headless
 screenshot tooling used to validate layout, not a real delay.
 
+## Admin panel (hosted version only)
+
+`docs/admin.html` lets you edit the GPT card list without touching code,
+once the dashboard is hosted on GitHub Pages. Since a static site has no
+server to check a password against, "login" is a GitHub personal access
+token with write access to this repo — the same mechanism tools like
+Netlify/Decap CMS use. The token is used only to call `api.github.com`
+directly from your browser (confirmed CORS-enabled via `curl`); this repo
+has no backend involved in that flow at all.
+
+**Use a fine-grained token** (github.com/settings/personal-access-tokens/new),
+scoped to only this repository, with **Contents: Read and write** permission
+— not a classic all-repos token. Saving edits fetches `docs/index.html` via
+the Contents API, splices in the edited `GPTS` array, and commits it back
+via `PUT`, which triggers a normal Pages rebuild (~1-2 min).
+
+Tested locally (not live, since that requires a real token): the parse →
+edit → reserialize → splice-back round trip was verified against the actual
+file content via a Node script before wiring it to the browser flow, and the
+resulting file's script block re-passed a syntax check.
+
 ## Adding a fifth GPT
 
 Append one object to the `GPTS` array in `app.html` — `name`, `description`,

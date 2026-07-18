@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — GPT Portfolio Dashboard</title>
+<!--
+  SECOND BRAIN FACTORY — admin panel for the portfolio-dashboard archetype.
+
+  Static GitHub Pages sites have no server to check a password against, so
+  the only real "login" that can actually authorize a persisted change is a
+  GitHub access token with write permission to this repo — the same
+  mechanism tools like Netlify/Decap CMS use for admin panels on static
+  sites. The token is used ONLY to call api.github.com directly from this
+  page (confirmed CORS-enabled); it is never sent anywhere else, and this
+  page has no backend of its own.
+
+  What "save" actually does: fetch docs/index.html via the Contents API,
+  extract the `const GPTS = [...]` block, replace it with the edited data,
+  and PUT it back as a new commit — which triggers a normal GitHub Pages
+  rebuild (~1-2 min) of the same file every visitor loads.
+-->
+<style>
+  :root{
+    --bg:#F4F5F7; --bg2:#EAEBEF; --panel:#FFFFFF; --panel-2:#FAFAFC; --line:#E2E4E9;
+    --ink:#1A1D23; --ink-dim:#6B7280; --accent:#6D5BD0; --accent-dark:#5647A8;
+    --live:#16A34A; --offline:#DC2626; --pending:#B45309;
+    --r:14px; --shadow:0 10px 24px rgba(26,29,35,.08);
+    --mono:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;
+    --disp:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,var(--bg2),var(--bg));
+       color:var(--ink);font-family:var(--disp);-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 60px}
+  .brand{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
+  h1{font-size:clamp(20px,3vw,28px);margin:.2em 0 .15em;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--ink-dim);max-width:70ch;font-size:14px;line-height:1.55;margin-bottom:22px}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:18px}
+  label{display:block;font-size:12px;color:var(--ink-dim);margin-bottom:4px;font-weight:600}
+  input[type=password],input[type=text],textarea{width:100%;background:#fff;border:1px solid var(--line);
+    color:var(--ink);border-radius:8px;padding:9px 10px;font:inherit;font-size:13.5px;margin-bottom:12px}
+  textarea{min-height:56px;resize:vertical;font-family:var(--body,inherit)}
+  .row{display:flex;gap:8px;align-items:center;margin-bottom:12px;font-size:13px;color:var(--ink-dim)}
+  button{border:none;border-radius:9px;padding:10px 16px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+  button.primary{background:var(--accent);color:#fff}
+  button.primary:hover{background:var(--accent-dark)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  button.danger{background:transparent;border:1px solid var(--offline);color:var(--offline)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .msg{border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px;display:none}
+  .msg.show{display:block}
+  .msg.ok{background:rgba(22,163,74,.1);color:var(--live);border:1px solid rgba(22,163,74,.3)}
+  .msg.err{background:rgba(220,38,38,.1);color:var(--offline);border:1px solid rgba(220,38,38,.3)}
+  .msg.info{background:rgba(109,91,208,.1);color:var(--accent-dark);border:1px solid rgba(109,91,208,.3)}
+  .gptcard{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px;background:#fff}
+  .gptcard .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .gptcard .top span{font-size:11px;font-weight:700;color:var(--ink-dim);letter-spacing:.06em;text-transform:uppercase}
+  .kbd{font-family:var(--mono);background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .hidden{display:none}
+  #userbar{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-dim);margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">Second Brain Factory · Admin</div>
+  <h1>Update Your GPT Portfolio</h1>
+  <p class="sub">Editing <span class="kbd">docs/index.html</span>'s GPT card list directly in the <b>odongo12/SecondBrainFactory</b> repo on GitHub. Saving here commits the change and triggers a normal Pages rebuild — the same file every visitor of the dashboard loads.</p>
+
+  <div id="msg" class="msg"></div>
+
+  <!-- LOGIN -->
+  <section class="panel" id="loginPanel">
+    <h2 style="margin-top:0;font-size:15px">Sign in</h2>
+    <p style="font-size:13px;color:var(--ink-dim);line-height:1.5">
+      There's no server here to check a password against — GitHub Pages only serves static files.
+      The only thing that can actually authorize a saved change is a GitHub access token with write
+      permission to this repo, so that's what "login" means on this page. Use a
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained personal access token</a>
+      scoped to <b>only</b> this repository, with <b>Contents: Read and write</b> permission — not a
+      classic all-repos token. The token stays in your browser and is sent only to
+      <span class="kbd">api.github.com</span>, never anywhere else.
+    </p>
+    <label for="tok">GitHub personal access token</label>
+    <input type="password" id="tok" placeholder="github_pat_..." autocomplete="off">
+    <div class="row">
+      <input type="checkbox" id="remember" style="width:auto;margin:0"> <label for="remember" style="margin:0">Remember on this device (stored in localStorage; leave unchecked to keep it session-only)</label>
+    </div>
+    <button class="primary" id="signin">Sign in</button>
+  </section>
+
+  <!-- EDITOR (hidden until signed in) -->
+  <div id="editorWrap" class="hidden">
+    <div id="userbar">
+      <span id="whoami"></span>
+      <button class="ghost" id="signout">Sign out</button>
+    </div>
+
+    <section class="panel">
+      <div id="cards"></div>
+      <button class="ghost" id="addcard">+ Add a GPT</button>
+    </section>
+
+    <section class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div style="font-size:12.5px;color:var(--ink-dim)">Saving commits directly to <span class="kbd">master</span>. Pages takes ~1-2 min to rebuild after that.</div>
+      <button class="primary" id="save">Save to GitHub</button>
+    </section>
+  </div>
+</div>
+
+<script>
+const OWNER = "odongo12";
+const REPO = "SecondBrainFactory";
+const FILE_PATH = "docs/index.html";
+const API = "https://api.github.com";
+
+const $ = sel => document.querySelector(sel);
+const msgEl = $("#msg");
+function showMsg(text, kind){
+  msgEl.textContent = text;
+  msgEl.className = "msg show " + kind;
+}
+
+function getToken(){
+  return sessionStorage.getItem("sbf_admin_token") || localStorage.getItem("sbf_admin_token") || "";
+}
+function setToken(tok, remember){
+  sessionStorage.setItem("sbf_admin_token", tok);
+  if(remember) localStorage.setItem("sbf_admin_token", tok);
+}
+function clearToken(){
+  sessionStorage.removeItem("sbf_admin_token");
+  localStorage.removeItem("sbf_admin_token");
+}
+
+function b64ToUtf8(b64){
+  const binary = atob(b64.replace(/\n/g, ""));
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+function utf8ToB64(str){
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
+async function gh(path, token, opts={}){
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      "Authorization": "Bearer " + token,
+      "Accept": "application/vnd.github+json",
+      ...(opts.headers||{})
+    }
+  });
+  if(!res.ok){
+    const body = await res.text();
+    throw new Error(`GitHub API ${res.status}: ${body.slice(0,300)}`);
+  }
+  return res.json();
+}
+
+let currentSha = null;
+let currentFileContent = null;
+let gpts = [];
+
+function extractGPTS(content){
+  const startMarker = "const GPTS = ";
+  const startIdx = content.indexOf(startMarker);
+  if(startIdx === -1) throw new Error("Could not find 'const GPTS = ' in the fetched file — has its structure changed?");
+  const searchFrom = startIdx + startMarker.length;
+  const endIdx = content.indexOf("\n];", searchFrom);
+  if(endIdx === -1) throw new Error("Could not find the end of the GPTS array — has its structure changed?");
+  const arrayText = content.slice(searchFrom, endIdx + 2);
+  const parsed = new Function("return " + arrayText)();
+  return { parsed, startIdx, endIdx: endIdx + 2 };
+}
+
+function spliceGPTS(content, startIdx, endIdx, newData){
+  const newArrayText = "const GPTS = " + JSON.stringify(newData, null, 2) + ";";
+  return content.slice(0, startIdx) + newArrayText + content.slice(endIdx);
+}
+
+function renderCards(){
+  const wrap = $("#cards");
+  wrap.innerHTML = "";
+  gpts.forEach((g, i) => {
+    const el = document.createElement("div");
+    el.className = "gptcard";
+    el.innerHTML = `
+      <div class="top"><span>GPT ${i+1}</span><button class="danger" data-remove="${i}">Remove</button></div>
+      <label>Name</label><input type="text" data-field="name" data-i="${i}" value="${(g.name||"").replace(/"/g,'&quot;')}">
+      <label>Description</label><textarea data-field="description" data-i="${i}">${g.description||""}</textarea>
+      <label>Health-check URL (leave blank if no live backend)</label><input type="text" data-field="healthz_url" data-i="${i}" value="${(g.healthz_url||"").replace(/"/g,'&quot;')}">
+      <label>Own interface path (relative, e.g. some-gpt.html — leave blank if none built yet)</label><input type="text" data-field="own_app" data-i="${i}" value="${(g.own_app||"").replace(/"/g,'&quot;')}">
+      <label>ChatGPT GPT URL</label><input type="text" data-field="gpt_url" data-i="${i}" value="${(g.gpt_url||"").replace(/"/g,'&quot;')}">
+      <label>Note</label><textarea data-field="note" data-i="${i}">${g.note||""}</textarea>
+    `;
+    wrap.appendChild(el);
+  });
+  wrap.querySelectorAll("[data-field]").forEach(input => {
+    input.addEventListener("input", e => {
+      const i = +e.target.dataset.i, field = e.target.dataset.field;
+      let v = e.target.value;
+      if((field==="healthz_url" || field==="own_app") && v.trim()==="") v = null;
+      gpts[i][field] = v;
+    });
+  });
+  wrap.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      gpts.splice(+btn.dataset.remove, 1);
+      renderCards();
+    });
+  });
+}
+
+$("#addcard").addEventListener("click", () => {
+  gpts.push({ name:"New GPT", description:"", healthz_url:null, own_app:null, gpt_url:"PASTE_YOUR_CHATGPT_G_URL_HERE", note:"" });
+  renderCards();
+});
+
+async function loadEditor(token){
+  showMsg("Loading current dashboard data from GitHub…", "info");
+  const file = await gh(`/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, token);
+  currentSha = file.sha;
+  currentFileContent = b64ToUtf8(file.content);
+  const { parsed } = extractGPTS(currentFileContent);
+  gpts = parsed;
+  renderCards();
+  $("#loginPanel").classList.add("hidden");
+  $("#editorWrap").classList.remove("hidden");
+  msgEl.className = "msg";
+}
+
+$("#signin").addEventListener("click", async () => {
+  const tok = $("#tok").value.trim();
+  if(!tok){ showMsg("Paste a token first.", "err"); return; }
+  $("#signin").disabled = true;
+  try{
+    const user = await gh("/user", tok);
+    const repo = await gh(`/repos/${OWNER}/${REPO}`, tok);
+    if(!repo.permissions || !repo.permissions.push){
+      throw new Error(`Token is valid (signed in as ${user.login}) but does not have write access to ${OWNER}/${REPO}. Check the token's repository permissions.`);
+    }
+    setToken(tok, $("#remember").checked);
+    $("#whoami").textContent = `Signed in as ${user.login} (write access confirmed)`;
+    await loadEditor(tok);
+  }catch(e){
+    showMsg(e.message, "err");
+  }finally{
+    $("#signin").disabled = false;
+  }
+});
+
+$("#signout").addEventListener("click", () => {
+  clearToken();
+  $("#editorWrap").classList.add("hidden");
+  $("#loginPanel").classList.remove("hidden");
+  $("#tok").value = "";
+  msgEl.className = "msg";
+});
+
+$("#save").addEventListener("click", async () => {
+  const token = getToken();
+  if(!token){ showMsg("Not signed in.", "err"); return; }
+  $("#save").disabled = true;
+  showMsg("Saving — committing to GitHub…", "info");
+  try{
+    const { startIdx, endIdx } = extractGPTS(currentFileContent);
+    const newContent = spliceGPTS(currentFileContent, startIdx, endIdx, gpts);
+    const res = await gh(`/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, token, {
+      method: "PUT",
+      body: JSON.stringify({
+        message: "Update GPT portfolio dashboard via admin panel",
+        content: utf8ToB64(newContent),
+        sha: currentSha,
+        branch: "master"
+      })
+    });
+    currentSha = res.content.sha;
+    currentFileContent = newContent;
+    showMsg("Saved. GitHub Pages will rebuild in about 1-2 minutes — refresh the dashboard after that to see the change.", "ok");
+  }catch(e){
+    showMsg("Save failed: " + e.message + (e.message.includes("409") ? " — someone/something else changed the file since you loaded it; sign out and back in to reload the latest version." : ""), "err");
+  }finally{
+    $("#save").disabled = false;
+  }
+});
+
+// auto-resume session if a token is already stored
+(function(){
+  const tok = getToken();
+  if(tok){
+    $("#tok").value = tok;
+    $("#signin").click();
+  }
+})();
+</script>
+</body>
+</html>
