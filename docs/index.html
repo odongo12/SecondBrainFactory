@@ -33,7 +33,8 @@
   .wrap{max-width:1200px;margin:0 auto;padding:28px 20px 60px}
   .brand{font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-dim)}
   h1{font-size:clamp(22px,3vw,32px);margin:.2em 0 .15em;font-weight:700;letter-spacing:-.01em}
-  .sub{color:var(--ink-dim);max-width:68ch;font-size:14px;line-height:1.55;margin-bottom:26px}
+  .sub{color:var(--ink-dim);max-width:68ch;font-size:14px;line-height:1.55;margin-bottom:8px;font-style:italic}
+  .byline{color:var(--ink);max-width:68ch;font-size:14px;line-height:1.55;margin-bottom:26px;font-weight:700}
   .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
   .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));
     border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);
@@ -64,8 +65,9 @@
 <body>
 <div class="wrap">
   <div class="brand">Second Brain Factory · Portfolio Dashboard</div>
-  <h1>Your GPT Portfolio</h1>
-  <p class="sub">Every Custom GPT you own, one directory. Each card independently checks whether its backend is reachable right now, deep-links to the real hosted GPT, and links out to that GPT's own dedicated executable infographic — each with its own distinct inputs, panels, and (where wired) live backend. This page doesn't force them into one shared contract; RNAi Precision Crop Designer OS and Vector Trial Governance Navigator answer completely different questions.</p>
+  <h1>Infographics Simulation Lab™</h1>
+  <p class="sub">An AI Operating System for Scientific Infographics, Simulations, and Visual Knowledge Engineering</p>
+  <p class="byline">Designed, Developed, and Maintained by Dr. Odongo Oduor Joseph</p>
 
   <div class="grid" id="cardgrid"></div>
 
