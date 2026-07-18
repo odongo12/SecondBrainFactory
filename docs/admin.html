@@ -235,7 +235,7 @@ async function loadEditor(token){
   renderCards();
   $("#loginPanel").classList.add("hidden");
   $("#editorWrap").classList.remove("hidden");
-  msgEl.className = "msg";
+  showMsg("Loaded. Note: signing in only confirms your account can push to this repo — it does NOT confirm this specific token's Contents permission is \"Read and write\" (fine-grained tokens can still 403 on Save if that's set to \"No access\" or \"Read-only\", with no way to check in advance). Try Save once to be sure.", "info");
 }
 
 $("#signin").addEventListener("click", async () => {
@@ -246,10 +246,16 @@ $("#signin").addEventListener("click", async () => {
     const user = await gh("/user", tok);
     const repo = await gh(`/repos/${OWNER}/${REPO}`, tok);
     if(!repo.permissions || !repo.permissions.push){
-      throw new Error(`Token is valid (signed in as ${user.login}) but does not have write access to ${OWNER}/${REPO}. Check the token's repository permissions.`);
+      throw new Error(`Token is valid (signed in as ${user.login}) but this account has no push access at all to ${OWNER}/${REPO}.`);
     }
+    // Note: the check above only rules out "no access whatsoever" — it reflects your
+    // ACCOUNT's role on the repo, not what THIS SPECIFIC fine-grained token is scoped
+    // to do. A fine-grained token can pass this check and still 403 on save if its
+    // Contents permission is "No access" or "Read-only" rather than "Read and write".
+    // There is no reliable way to check a fine-grained token's actual granted scopes
+    // in advance — only Save will reveal that for certain.
     setToken(tok, $("#remember").checked);
-    $("#whoami").textContent = `Signed in as ${user.login} (write access confirmed)`;
+    $("#whoami").textContent = `Signed in as ${user.login} — write access not yet verified (see note below)`;
     await loadEditor(tok);
   }catch(e){
     showMsg(e.message, "err");
@@ -287,7 +293,15 @@ $("#save").addEventListener("click", async () => {
     currentFileContent = newContent;
     showMsg("Saved. GitHub Pages will rebuild in about 1-2 minutes — refresh the dashboard after that to see the change.", "ok");
   }catch(e){
-    showMsg("Save failed: " + e.message + (e.message.includes("409") ? " — someone/something else changed the file since you loaded it; sign out and back in to reload the latest version." : ""), "err");
+    let hint = "";
+    if(e.message.includes("409")){
+      hint = " — someone/something else changed the file since you loaded it; sign out and back in to reload the latest version.";
+    } else if(e.message.includes("403") && e.message.includes("not accessible by personal access token")){
+      hint = " — this is the signature GitHub error for a fine-grained token whose \"Contents\" repository permission isn't set to \"Read and write\" (or whose repository selection doesn't include this repo). Go to github.com/settings/personal-access-tokens, check/regenerate the token: Repository access must include SecondBrainFactory, and under Repository permissions (a collapsed section, easy to miss) Contents must be \"Read and write\", not \"No access\" or \"Read-only\". Sign out and back in with the corrected token.";
+    } else if(e.message.includes("403")){
+      hint = " — a 403 here almost always means the token's permissions are insufficient; check its Repository access and Repository permissions settings at github.com/settings/personal-access-tokens.";
+    }
+    showMsg("Save failed: " + e.message + hint, "err");
   }finally{
     $("#save").disabled = false;
   }
