@@ -251,11 +251,11 @@ PANELS.push({ id:"verdict", cv:document.getElementById("cv-verdict"),
   render(s){ const out=s.result||CFG.mockRun(s); const cv=this.cv,x=cv.getContext("2d");
     const W=cv.width,H=cv.height; x.clearRect(0,0,W,H);
     const cx=W/2,cy=H*0.92,r=Math.min(W*0.42,H*0.9);
-    for(let i=0;i<=180;i++){const a=Math.PI-(i/180)*Math.PI;
+    for(let i=0;i<=180;i++){const a=Math.PI+(i/180)*Math.PI;
       const v=i/180; x.strokeStyle= v<.34?css('--pass'):v<.66?css('--amber'):css('--fail');
       x.lineWidth=16;x.beginPath();
       x.arc(cx,cy,r,a-0.01,a);x.stroke();}
-    const a=Math.PI-out.score*Math.PI;
+    const a=Math.PI+out.score*Math.PI;
     x.strokeStyle=css('--ink');x.lineWidth=3;x.beginPath();
     x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*r*0.86,cy+Math.sin(a)*r*0.86);x.stroke();
     x.fillStyle=css('--ink');x.font="700 30px "+css('--disp')+",sans-serif";x.textAlign="center";

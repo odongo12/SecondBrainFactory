@@ -1,0 +1,40 @@
+{
+  "slug": "portfolio-dashboard",
+  "archetype": "portfolio-dashboard (new)",
+  "description": "Not a single-GPT infographic — a meta-dashboard listing every Custom GPT the user owns, each as an independently live-pinged card that deep-links to the real GPT and links out to that GPT's own dedicated app.html (built separately, one per GPT, via the normal Six-Stage Pipeline). Does not attempt to force every GPT's distinct input/output contract into one shared schema — RNAi Precision Crop Designer OS has a completely different contract (dsRNA design, off-target screening, vault endpoints) than Vector Trial Governance Navigator's /run+/chat, and forcing them into one generic form would misrepresent both.",
+  "gpts": [
+    {
+      "name": "Vector Trial Governance Navigator",
+      "status": "live",
+      "healthz_url": "http://localhost:8766/healthz",
+      "own_app": "../vector-trial-governance-navigator/app.html",
+      "gpt_url": "PASTE_YOUR_CHATGPT_G_URL_HERE",
+      "note": "Fully wired this session: local backend + shared-secret auth + cloudflared tunnel, tested end-to-end."
+    },
+    {
+      "name": "RNAi Precision Crop Designer OS",
+      "status": "live",
+      "healthz_url": "https://rnai-crop-designer-latest.onrender.com/healthz",
+      "own_app": "../rnai-precision-crop-designer/app.html",
+      "gpt_url": "PASTE_YOUR_CHATGPT_G_URL_HERE",
+      "note": "Confirmed live and reachable (HTTP 200) via curl during this build. Real Render-hosted backend with its own distinct API contract (/design/dsrna, /screen/offtarget, /simulate, /vault/*)."
+    },
+    {
+      "name": "ACI-GPT",
+      "status": "not-connected",
+      "healthz_url": null,
+      "own_app": null,
+      "gpt_url": "PASTE_YOUR_CHATGPT_G_URL_HERE",
+      "note": "Mentioned in project history but no confirmed live backend or chat URL found in this workspace — placeholder card only, shown disabled until connected."
+    },
+    {
+      "name": "ForensicAI GPT",
+      "status": "not-connected",
+      "healthz_url": null,
+      "own_app": null,
+      "gpt_url": "PASTE_YOUR_CHATGPT_G_URL_HERE",
+      "note": "Two HF Spaces referenced in project history (forensic-analysis-api, forensic-brain) but no confirmed live URL found in this workspace — placeholder card only, shown disabled until connected."
+    }
+  ],
+  "theme_hint": "meta/directory palette — distinct from any individual GPT's domain theme (not civic-editorial, not wet-lab cyan/red) since this page's job is to be an index, not a science-comm piece. Clean slate/graphite with one accent color."
+}

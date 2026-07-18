@@ -1,0 +1,156 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Vector Trial Governance Navigator Action",
+    "version": "1.1.0",
+    "description": "Backend implemented (backend/app.py, FastAPI + Anthropic), exposed publicly via a cloudflared quick tunnel so the hosted ChatGPT GPT's Actions can reach it. NOTE: cloudflared quick tunnels (no Cloudflare account) generate a NEW random URL every time they restart — re-paste servers[0].url here and in the GPT's Actions config whenever the tunnel is restarted. For a stable URL, use a named Cloudflare Tunnel (needs a free Cloudflare account) or deploy to Render/HF Spaces instead."
+  },
+  "x-backend": "provisioned-via-cloudflare-quick-tunnel",
+  "servers": [
+    { "url": "https://judy-installing-suited-modes.trycloudflare.com" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "NavigatorSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Navigator-Secret",
+        "description": "Must match backend/.env's NAVIGATOR_SHARED_SECRET. In the ChatGPT builder's Actions authentication config, choose 'API Key', type 'Custom', header name 'X-Navigator-Secret', and paste the same secret value."
+      }
+    },
+    "schemas": {
+      "RunInput": {
+        "type": "object",
+        "required": ["mechanism", "productType", "engagement", "opposition"],
+        "properties": {
+          "mechanism": {
+            "type": "string",
+            "enum": ["Pesticide-like (active ingredient kills/sterilizes pest)", "Drug-like (something administered to the organism)"],
+            "description": "Whether the product's mechanism is closer to a pesticide-active-ingredient framing (historically EPA jurisdiction, mirrors MosquitoMate/OX5034) or a drug/administered-to-the-organism framing (historically pulled toward FDA first, mirrors OX513A's 2011-2016 path)."
+          },
+          "productType": {
+            "type": "string",
+            "enum": ["Population-suppression (RIDL / Wolbachia-style)", "Population-modification / self-propagating gene drive"],
+            "description": "Suppression systems (RIDL, Wolbachia-CI) have historical precedent in both case studies. Self-propagating gene-drive systems raise an open reversibility/governance question that neither historical case study actually tested."
+          },
+          "engagement": {
+            "type": "string",
+            "enum": ["Informational meeting only (no stated decision role)", "Meeting + designated decision-input channel", "Representative survey / deliberative poll"],
+            "description": "The planned public-engagement design. 'Informational meeting only' mirrors the Florida Keys MCD 2012/2014 town halls that were mistaken for a decision-input channel. 'Representative survey / deliberative poll' mirrors the paper's untested-but-recommended alternative."
+          },
+          "opposition": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Anticipated local opposition signal, 0-100%, as a stand-in for how newsworthy/contested the trial is likely to become locally."
+          }
+        }
+      },
+      "RunOutput": {
+        "type": "object",
+        "properties": {
+          "pathway": { "type": "string", "description": "Nearest historical jurisdiction pathway analogy." },
+          "timelineYears": { "type": "number", "description": "Historical-pattern estimate of years to a usable field-trial authorization." },
+          "score": { "type": "number", "minimum": 0, "maximum": 1, "description": "Controversy-risk score, 0-1." },
+          "band": { "type": "string", "enum": ["LOW", "MODERATE", "HIGH"] },
+          "factors": {
+            "type": "object",
+            "description": "Named risk-factor contributions (0-1 each) driving the controversy-risk score.",
+            "additionalProperties": { "type": "number" }
+          },
+          "weights": {
+            "type": "object",
+            "description": "Weight applied to each factor.",
+            "additionalProperties": { "type": "number" }
+          },
+          "nearestPrecedent": { "type": "string", "description": "Which historical case (Oxitec/OX513A or MosquitoMate/Debug Fresno) this input combination most resembles." },
+          "table": {
+            "type": "array",
+            "description": "Detail rows for the matched precedent case.",
+            "items": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      },
+      "ChatMessage": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": { "type": "string", "enum": ["user", "assistant"] },
+          "content": { "type": "string" }
+        }
+      },
+      "ChatInput": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": { "type": "string", "description": "The user's free-text question." },
+          "history": {
+            "type": "array",
+            "description": "Prior turns in the conversation, oldest first.",
+            "items": { "$ref": "#/components/schemas/ChatMessage" }
+          }
+        }
+      },
+      "ChatOutput": {
+        "type": "object",
+        "properties": {
+          "reply": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "NavigatorSecret": [] }],
+  "paths": {
+    "/run": {
+      "post": {
+        "operationId": "runVectorTrialGovernanceNavigator",
+        "summary": "Estimate the nearest historical regulatory pathway, timeline, and public-engagement controversy risk for a proposed US GE/GD mosquito field trial, based on the Oxitec/MosquitoMate 2009-2020 precedent record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RunInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Historical-pattern estimate (not a regulatory prediction)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RunOutput" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "operationId": "chatVectorTrialGovernanceNavigator",
+        "summary": "Free-text conversational question, answered grounded in the same knowledge distillate as the GPT's own instructions.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Grounded reply",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChatOutput" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

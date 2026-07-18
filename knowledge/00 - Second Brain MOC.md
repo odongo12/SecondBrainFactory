@@ -31,6 +31,12 @@ This is the map of content. Each note below is a single idea that stands on its 
 - [[12 - Open Threads]] — what is not solved yet
 
 ## Provenance
-Built July 2026. Three reference builds exist: a regulatory risk screener, a
-football odds model, and the RNAi crop designer. All three share identical
-machinery — that is the claim this vault exists to defend.
+Built July 2026. Reference builds: a regulatory risk screener, a football
+odds model, the RNAi crop designer, and Vector Trial Governance Navigator
+(the first build with a real, tested live backend — local FastAPI + a
+Cloudflare tunnel + shared-secret auth, called simultaneously by the local
+infographic and the actual hosted ChatGPT GPT's Action). All share identical
+core machinery — that is the claim this vault exists to defend. One build
+breaks it on purpose: `builds/portfolio-dashboard/` is a directory over
+every GPT the user owns, not a single-GPT infographic — see [[05 - The Archetype Taxonomy]]'s
+note on why it doesn't use the shared Bus.

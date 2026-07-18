@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RNAi Precision Crop Designer — Executable Infographic</title>
+<style>
+  :root{
+    --navy:#1e2a44; --navy-2:#2b3a5c; --ink:#1f2937; --dim:#64748b;
+    --line:#e2e8f0; --bg:#f7f9fc; --card:#ffffff;
+    --blue:#2563eb; --teal:#0d9488; --green:#16a34a; --amber:#d97706;
+    --red:#dc2626; --purple:#7c3aed; --violet:#6d28d9;
+    --r:10px; --shadow:0 1px 3px rgba(15,23,42,.08),0 6px 18px rgba(15,23,42,.06);
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:14px}
+  button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .wrap{max-width:1500px;margin:0 auto;padding:16px 16px 40px}
+
+  /* ---- top band ---- */
+  .top{display:grid;grid-template-columns:300px 1fr 300px;gap:14px;align-items:start;margin-bottom:14px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow);
+    display:flex;gap:10px;align-items:flex-start}
+  .chip h4{margin:0 0 4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);font-weight:700}
+  .chip p{margin:0 0 8px;font-size:11.5px;color:var(--dim);line-height:1.45}
+  .qr{width:66px;height:66px;flex:0 0 66px;border:1px solid var(--line);border-radius:6px;background:#fff;padding:3px}
+  .qr img{width:100%;height:100%;display:block}
+  h1{margin:0;text-align:center;font-size:clamp(22px,2.6vw,34px);font-weight:800;color:var(--navy);letter-spacing:-.02em}
+  .tag{text-align:center;color:var(--navy-2);font-weight:600;font-size:14px;margin:2px 0 2px}
+  .tag2{text-align:center;color:var(--dim);font-size:12.5px}
+  .btn{border:none;border-radius:7px;padding:8px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px}
+  .btn.primary{background:var(--teal);color:#fff}
+  .btn.blue{background:var(--blue);color:#fff}
+  .btn.violet{background:var(--violet);color:#fff}
+  .btn.ghost{background:#f1f5f9;color:var(--navy);border:1px solid var(--line)}
+  .btn:hover{filter:brightness(1.06)}
+
+  /* ---- main 3-column ---- */
+  .main{display:grid;grid-template-columns:300px 1fr 340px;gap:14px;align-items:start}
+  @media(max-width:1100px){.main,.top{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .panel > header{padding:9px 12px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+  .hd-blue{background:var(--navy)} .hd-teal{background:var(--teal)} .hd-violet{background:var(--violet)}
+  .panel .body{padding:10px}
+
+  /* methodology list */
+  .step{display:flex;gap:9px;align-items:flex-start;padding:8px;border:1px solid transparent;border-radius:8px;cursor:pointer}
+  .step:hover{background:#f8fafc;border-color:var(--line)}
+  .step.on{background:#eff6ff;border-color:#bfdbfe}
+  .num{flex:0 0 22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;
+    display:flex;align-items:center;justify-content:center}
+  .step.on .num{background:var(--navy)}
+  .step b{display:block;font-size:12.5px;color:var(--blue);font-weight:600}
+  .step.on b{color:var(--navy)}
+  .step span{font-size:11.5px;color:var(--dim);line-height:1.4}
+
+  /* wheel */
+  .wheelwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+    padding:8px;display:flex;flex-direction:column;align-items:center}
+  svg.wheel{width:100%;max-width:560px;height:auto;display:block}
+  .seg{cursor:pointer;transition:opacity .18s}
+  .seg:hover{opacity:.82}
+
+  /* GPT core */
+  .core{margin-top:8px;width:100%;max-width:560px;border:1px solid var(--line);border-radius:var(--r);
+    background:linear-gradient(180deg,#fbfdff,#f4f8fd);padding:12px}
+  .corehead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.16)}
+  .corehead b{font-size:13px;color:var(--navy)}
+  .mode{margin-left:auto;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);
+    border:1px solid #fde68a;background:#fffbeb;border-radius:5px;padding:2px 6px;font-weight:700}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+  .f label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-bottom:3px}
+  .f .v{font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--teal)}
+  select{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px;font:inherit;font-size:12.5px;background:#fff}
+  .answer{margin-top:9px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700;color:#fff}
+
+  /* simulators */
+  .sim{border:1px solid var(--line);border-radius:8px;padding:9px;margin-bottom:9px;position:relative}
+  .sim h5{margin:0 0 2px;font-size:12.5px;font-weight:700;color:var(--teal)}
+  .sim p{margin:0 0 6px;font-size:11px;color:var(--dim);line-height:1.4}
+  .sim canvas{width:100%;height:auto;display:block;border-radius:6px}
+  .sim .dl{position:absolute;top:8px;right:8px;font-size:10.5px;color:var(--dim);background:#f8fafc;
+    border:1px solid var(--line);border-radius:6px;padding:2px 6px;cursor:pointer}
+  .sim .dl:hover{color:var(--teal);border-color:var(--teal)}
+  .readout{font-size:11.5px;color:var(--navy);font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+  .seqbox{font-family:ui-monospace,Menlo,monospace;font-size:10px;line-height:1.5;word-break:break-all;
+    background:#f8fafc;border:1px solid var(--line);border-radius:6px;padding:6px;color:var(--navy);max-height:60px;overflow:auto}
+
+  /* predictive model */
+  .model{display:flex;align-items:center;gap:10px}
+  .model .big{font-size:26px;font-weight:800;color:var(--violet);font-variant-numeric:tabular-nums;margin-left:auto}
+
+  /* resources */
+  .res{margin-top:14px;background:var(--navy);border-radius:var(--r);padding:12px}
+  .res > b{color:#fff;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin-top:9px}
+  .rcard{background:#fff;border-radius:8px;padding:9px;display:flex;flex-direction:column;gap:6px}
+  .rcard .t{font-size:12px;font-weight:700;color:var(--navy)}
+  .rcard .d{font-size:11px;color:var(--dim);line-height:1.35}
+  .foot{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px;
+    background:var(--navy-2);border-radius:var(--r);padding:12px;color:#cbd5e1;font-size:11.5px;line-height:1.5}
+  .foot b{color:#fff;display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+</style>
+</head>
+<body>
+<div class="wrap" id="approot">
+
+  <!-- ================= TOP ================= -->
+  <div class="top">
+    <div class="chip">
+      <div style="flex:1">
+        <h4>About this research</h4>
+        <p>An AI-driven pipeline for designing highly specific RNAi molecules for crop improvement.<br><b>DOI:</b> 10.1234/rnai.2024.56789</p>
+        <button class="btn blue" onclick="openLink('https://doi.org/10.1234/rnai.2024.56789')">Read paper</button>
+      </div>
+      <div class="qr"><img id="qr-paper" alt="QR code to the paper"></div>
+    </div>
+
+    <div>
+      <h1>RNAi Precision Crop Designer</h1>
+      <div class="tag">From research paper to interactive experience</div>
+      <div class="tag2">Every control below is live — the wheel, the model, the simulators. Nothing here is a picture of a button.</div>
+    </div>
+
+    <div class="chip">
+      <div style="flex:1">
+        <h4>Ask the research expert</h4>
+        <p>The Custom GPT trained on this paper. Your inputs below travel with you.</p>
+        <button class="btn primary" onclick="openGPT()">Open Custom GPT ↗</button>
+      </div>
+      <div class="qr"><img id="qr-gpt" alt="QR code to the Custom GPT"></div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+
+    <!-- LEFT: methodology (drives the wheel) -->
+    <section class="panel">
+      <header class="hd-blue">Methodology overview</header>
+      <div class="body" id="steps"></div>
+      <div style="padding:0 10px 10px">
+        <button class="btn blue" style="width:100%;justify-content:center" onclick="runWorkflow()">▶ Run full workflow simulation</button>
+      </div>
+    </section>
+
+    <!-- CENTER: wheel + GPT core -->
+    <div class="wheelwrap">
+      <svg class="wheel" viewBox="0 0 560 560" role="img" aria-label="Seven-stage RNAi design workflow. Click a stage to focus it.">
+        <g id="segs"></g>
+        <circle cx="280" cy="280" r="118" fill="#0f1e3d"/>
+        <circle cx="280" cy="280" r="118" fill="none" stroke="#3b82f6" stroke-width="3" opacity=".55"/>
+        <text x="280" y="256" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">RNAi Precision</text>
+        <text x="280" y="276" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Crop Designer</text>
+        <text x="280" y="300" text-anchor="middle" fill="#7dd3fc" font-size="11" id="wheel-stage">stage 1 · target identification</text>
+        <text x="280" y="322" text-anchor="middle" fill="#94a3b8" font-size="10.5" id="wheel-eff">predicted silencing —</text>
+      </svg>
+
+      <!-- CENTER CORE: the Custom GPT -->
+      <div class="core">
+        <div class="corehead"><span class="dot"></span><b id="gptname">RNAi Precision Crop Designer</b>
+          <span class="mode" id="modeTag">deep-link</span></div>
+        <div class="fields" id="controls"></div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn primary" style="flex:1;justify-content:center" onclick="runCore()">Design construct</button>
+          <button class="btn ghost" style="flex:1;justify-content:center" onclick="openGPT()">Ask the GPT ↗</button>
+        </div>
+        <div class="answer" id="answer">Move any control — the four simulators on the right re-derive immediately from the same values. <b>Design construct</b> runs the model and copies a ready prompt for the GPT.</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: simulators + predictive model -->
+    <div>
+      <section class="panel" style="margin-bottom:14px">
+        <header class="hd-teal">Interactive simulations</header>
+        <div class="body">
+
+          <div class="sim"><button class="dl" data-p="design">Download</button>
+            <h5>dsRNA design simulator</h5>
+            <p>Sequence generated from your GC and length inputs.</p>
+            <div class="seqbox" id="seq">—</div>
+            <canvas id="cv-design" width="320" height="70"></canvas>
+            <div class="readout" id="ro-design">—</div>
+          </div>
+
+          <div class="sim"><button class="dl" data-p="offtarget">Download</button>
+            <h5>Off-target analysis simulator</h5>
+            <p>BLAST hit count against stringency.</p>
+            <canvas id="cv-off" width="320" height="120"></canvas>
+            <div class="readout" id="ro-off">—</div>
+          </div>
+
+          <div class="sim"><button class="dl" data-p="efficacy">Download</button>
+            <h5>Efficacy prediction simulator</h5>
+            <p>Dose–response for silencing efficiency.</p>
+            <canvas id="cv-eff" width="320" height="120"></canvas>
+            <div class="readout" id="ro-eff">—</div>
+          </div>
+
+          <div class="sim"><button class="dl" data-p="environment">Download</button>
+            <h5>Environmental impact simulator</h5>
+            <p>Non-target exposure vs soil persistence.</p>
+            <canvas id="cv-env" width="320" height="120"></canvas>
+            <div class="readout" id="ro-env">—</div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="panel">
+        <header class="hd-violet">Predictive model</header>
+        <div class="body">
+          <div class="model">
+            <div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--violet)">Silencing efficiency model</div>
+              <div style="font-size:11px;color:var(--dim);line-height:1.4">Live prediction from the current construct.</div>
+            </div>
+            <div class="big" id="modelPct">—</div>
+          </div>
+          <button class="btn violet" style="width:100%;justify-content:center;margin-top:8px" onclick="downloadAll()">Download all outputs</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ================= RESOURCES ================= -->
+  <div class="res">
+    <b>Explore more resources</b>
+    <div class="rgrid">
+      <div class="rcard"><span class="t">Interactive results dashboard</span><span class="d">Dynamic charts and data.</span>
+        <button class="btn blue" onclick="scrollTo({top:0,behavior:'smooth'})">Open dashboard</button></div>
+      <div class="rcard"><span class="t">Knowledge graph</span><span class="d">Genes, pathways, relationships.</span>
+        <button class="btn primary" onclick="alert('Wire to your graph endpoint in CFG.links.graph')">Explore graph</button></div>
+      <div class="rcard"><span class="t">3D molecular viewer</span><span class="d">dsRNA structures in 3D.</span>
+        <button class="btn violet" onclick="alert('Wire to your viewer endpoint in CFG.links.viewer')">Open 3D viewer</button></div>
+      <div class="rcard" style="align-items:center"><span class="t">Live app</span>
+        <div class="qr" style="width:76px;height:76px;flex:0 0 76px"><img id="qr-app" alt="QR code to this live app"></div></div>
+      <div class="rcard"><span class="t">Download dataset</span><span class="d">Every panel's current state, as files.</span>
+        <button class="btn ghost" onclick="downloadAll()">Download data</button></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div><b>How to use</b>Move any control. The wheel, the model, and all four simulators re-derive from one shared input bus.</div>
+    <div><b>Why this differs from the poster</b>The poster's buttons were pixels. These are wired. The image became the interface.</div>
+    <div><b>Local estimate vs GPT</b>Simulators run a transparent local model so the page works offline. The GPT holds the authoritative reasoning.</div>
+    <div><b>Powered by</b>Custom GPT action schema · morphic panel library · Second Brain Factory OS</div>
+  </div>
+</div>
+
+<script id="qrdata">const QR={"gpt": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNSIgaGVpZ2h0PSIzNSIgY2xhc3M9InNlZ25vIj48cGF0aCBjbGFzcz0icXJsaW5lIiBzdHJva2U9IiMxZTJhNDQiIGQ9Ik0xIDEuNWg3bTIgMGgybTIgMGgzbTEgMGgybTEgMGgxbTUgMGg3bS0zMyAxaDFtNSAwaDFtMSAwaDRtOCAwaDNtMyAwaDFtNSAwaDFtLTMzIDFoMW0xIDBoM20xIDBoMW0xIDBoNW0yIDBoMW0yIDBoNm0yIDBoMW0xIDBoM20xIDBoMW0tMzMgMWgxbTEgMGgzbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgybTIgMGgybTIgMGgxbTEgMGgxbTEgMGgzbTEgMGgxbS0zMyAxaDFtMSAwaDNtMSAwaDFtMyAwaDRtMSAwaDFtMSAwaDVtMSAwaDFtMiAwaDFtMSAwaDNtMSAwaDFtLTMzIDFoMW01IDBoMW00IDBoMm0xIDBoMW0yIDBoMW0yIDBoMW01IDBoMW01IDBoMW0tMzMgMWg3bTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGg3bS0yNSAxaDNtMSAwaDFtMiAwaDFtNCAwaDFtMyAwaDFtLTI1IDFoMW01IDBoMW0xIDBoMW0xIDBoM20xIDBoNG0xIDBoMW0yIDBoNW0yIDBoM20tMzIgMWg1bTIgMGgxbTIgMGg1bTMgMGgybTEgMGgxbTEgMGgxbTQgMGgzbS0yOSAxaDNtMSAwaDFtMSAwaDFtMSAwaDJtMSAwaDRtMyAwaDFtMSAwaDFtMSAwaDFtMyAwaDFtMSAwaDJtLTMxIDFoMm0xIDBoMm0yIDBoMm0xIDBoM20yIDBoMW0yIDBoMm01IDBoNW0xIDBoMW0tMzIgMWgxbTEgMGgxbTEgMGgybTEgMGgxbTMgMGgybTYgMGgxbTEgMGgzbTEgMGgxbTQgMGgybS0zMyAxaDRtNiAwaDNtMiAwaDJtMiAwaDFtMyAwaDFtMiAwaDJtMSAwaDFtMSAwaDJtLTMzIDFoMW0yIDBoMW0yIDBoMm0yIDBoMm0yIDBoNG0zIDBoMm0yIDBoM20zIDBoMW0tMjcgMWgxbTEgMGgxbTIgMGgxbTMgMGgxbTUgMGgxbTEgMGg0bTIgMGgzbTEgMGgxbS0zMCAxaDFtMSAwaDRtMSAwaDFtMSAwaDRtMSAwaDJtNiAwaDFtMSAwaDJtMyAwaDFtLTMzIDFoMW0xIDBoMW03IDBoMW0xIDBoMW0zIDBoMW0xIDBoMm0xIDBoMW0xIDBoMW0yIDBoMW0yIDBoNG0tMzIgMWgxbTEgMGgxbTEgMGgybTEgMGgxbTEgMGg2bTIgMGgybTEgMGgxbTEgMGgxbTIgMGgybTEgMGgybTEgMGgxbS0zMyAxaDJtMSAwaDFtMyAwaDJtMSAwaDFtMSAwaDNtNSAwaDFtMSAwaDFtMSAwaDJtMiAwaDRtLTMyIDFoMm0yIDBoNG0xIDBoMm00IDBoMW0xIDBoMW0xIDBoMm0xIDBoMW0yIDBoMW0yIDBoMm0xIDBoMm0tMzMgMWgxbTIgMGgybTMgMGg1bTEgMGgybTEgMGgzbTEgMGgzbTMgMGgybTEgMGgxbS0zMSAxaDFtMSAwaDJtMiAwaDJtMSAwaDJtMiAwaDNtNCAwaDFtMSAwaDFtNiAwaDNtLTMyIDFoMW0xIDBoMW0yIDBoMW0yIDBoMm0yIDBoNW0yIDBoMm0zIDBoN20tMzEgMWgybTMgMGgzbTEgMGgxbTEgMGgxbTQgMGgybTIgMGgxbTMgMGg2bS0yMiAxaDFtMSAwaDVtMSAwaDVtMyAwaDFtMyAwaDFtMSAwaDFtMSAwaDFtLTMzIDFoN20yIDBoMW0yIDBoMW0yIDBoMW0yIDBoMW0xIDBoMW0yIDBoMm0xIDBoMW0xIDBoMW0xIDBoMW0tMzEgMWgxbTUgMGgxbTcgMGgxbTEgMGgxbTIgMGgxbTMgMGgybTMgMGg1bS0zMyAxaDFtMSAwaDNtMSAwaDFtNiAwaDFtMyAwaDFtMSAwaDFtMiAwaDFtMSAwaDZtMSAwaDFtLTMyIDFoMW0xIDBoM20xIDBoMW0yIDBoMW0yIDBoMW0yIDBoMm0xIDBoM20xIDBoMW0xIDBoMm0xIDBoMm0yIDBoMm0tMzMgMWgxbTEgMGgzbTEgMGgxbTMgMGgybTEgMGgzbTEgMGgxbTEgMGgybTEgMGgybTEgMGgxbTEgMGgybTEgMGgzbS0zMyAxaDFtNSAwaDFtMiAwaDFtMSAwaDFtMSAwaDFtMSAwaDJtMiAwaDFtMiAwaDFtNCAwaDJtMSAwaDFtLTMxIDFoN20xIDBoMW00IDBoNG01IDBoNm0zIDBoMSIvPjwvc3ZnPgo=", "paper": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMSIgaGVpZ2h0PSIzMSIgY2xhc3M9InNlZ25vIj48cGF0aCBjbGFzcz0icXJsaW5lIiBzdHJva2U9IiMxZTJhNDQiIGQ9Ik0xIDEuNWg3bTEgMGgzbTMgMGgxbTQgMGgxbTIgMGg3bS0yOSAxaDFtNSAwaDFtMSAwaDFtMyAwaDJtMyAwaDJtMyAwaDFtNSAwaDFtLTI5IDFoMW0xIDBoM20xIDBoMW0zIDBoMW0xIDBoNG02IDBoMW0xIDBoM20xIDBoMW0tMjkgMWgxbTEgMGgzbTEgMGgxbTEgMGgxbTIgMGgxbTEgMGgxbTEgMGg0bTEgMGgxbTEgMGgxbTEgMGgzbTEgMGgxbS0yOSAxaDFtMSAwaDNtMSAwaDFtMiAwaDNtMSAwaDFtMSAwaDFtMyAwaDJtMSAwaDFtMSAwaDNtMSAwaDFtLTI5IDFoMW01IDBoMW0zIDBoMW0xIDBoMm0zIDBoM20yIDBoMW01IDBoMW0tMjkgMWg3bTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGg3bS0yMSAxaDFtMSAwaDFtMyAwaDFtMSAwaDVtLTIxIDFoMW0xIDBoMm0xIDBoM205IDBoNG0xIDBoMW0yIDBoMW0xIDBoMm0tMjkgMWg2bTIgMGgybTEgMGgxbTEgMGgybTQgMGgxbTEgMGg0bTMgMGgxbS0yOSAxaDNtMyAwaDFtMiAwaDFtNCAwaDFtNiAwaDRtMSAwaDJtLTI3IDFoMm0xIDBoMm0zIDBoMW0yIDBoNG0zIDBoMW0xIDBoMW0xIDBoMm0zIDBoMW0tMjkgMWgxbTMgMGgxbTEgMGgzbTEgMGgzbTQgMGgxbTIgMGgxbTQgMGgybS0yNiAxaDFtMSAwaDJtMiAwaDFtMSAwaDFtMSAwaDJtMSAwaDJtMyAwaDVtMiAwaDNtLTI5IDFoMm0xIDBoMm0xIDBoMW0xIDBoMW0yIDBoMW0xIDBoMW0yIDBoNG0yIDBoMm0yIDBoM20tMjkgMWgxbTEgMGg0bTMgMGg0bTIgMGgybTEgMGg1bTQgMGgxbS0yOCAxaDJtMSAwaDFtMiAwaDNtMSAwaDFtMyAwaDFtMSAwaDFtMSAwaDRtMSAwaDNtMSAwaDFtLTI3IDFoMm0yIDBoMW0zIDBoMW0xIDBoMm0yIDBoMm02IDBoMW0xIDBoM20tMjggMWgxbTEgMGgybTIgMGgxbTIgMGgxbTEgMGgxbTEgMGgzbTIgMGgxbTQgMGgxbTIgMGgxbS0yNSAxaDFtNSAwaDFtMiAwaDFtMSAwaDNtMSAwaDJtMSAwaDNtMSAwaDFtMSAwaDFtLTI2IDFoMW0xIDBoMm0xIDBoM200IDBoMm0yIDBoMTBtLTE5IDFoNW00IDBoNG0zIDBoNW0tMjkgMWg3bTEgMGgybTIgMGgxbTEgMGgxbTIgMGgxbTEgMGgybTEgMGgxbTEgMGgybTEgMGgxbS0yOCAxaDFtNSAwaDFtMSAwaDJtMiAwaDNtMSAwaDFtMSAwaDNtMyAwaDJtMSAwaDFtLTI4IDFoMW0xIDBoM20xIDBoMW0zIDBoMW0xIDBoMW0yIDBoNG0xIDBoNW0xIDBoMW0tMjcgMWgxbTEgMGgzbTEgMGgxbTEgMGg2bTEgMGgxbTMgMGgybTIgMGgzbTIgMGgxbS0yOSAxaDFtMSAwaDNtMSAwaDFtMSAwaDFtNyAwaDRtMyAwaDFtMiAwaDFtMSAwaDFtLTI5IDFoMW01IDBoMW0zIDBoMW0xIDBoMW01IDBoM20xIDBoMW0xIDBoMm0xIDBoMW0tMjggMWg3bTEgMGgybTEgMGgybTMgMGgxbTMgMGgzbTQgMGgxIi8+PC9zdmc+Cg==", "app": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNSIgaGVpZ2h0PSIzNSIgY2xhc3M9InNlZ25vIj48cGF0aCBjbGFzcz0icXJsaW5lIiBzdHJva2U9IiMxZTJhNDQiIGQ9Ik0xIDEuNWg3bTEgMGgzbTEgMGgybTMgMGg1bTEgMGgxbTIgMGg3bS0zMyAxaDFtNSAwaDFtMSAwaDRtMSAwaDFtMiAwaDFtMSAwaDFtMSAwaDFtMSAwaDJtMiAwaDFtNSAwaDFtLTMzIDFoMW0xIDBoM20xIDBoMW0zIDBoMW01IDBoMm0yIDBoMW0xIDBoMW0zIDBoMW0xIDBoM20xIDBoMW0tMzMgMWgxbTEgMGgzbTEgMGgxbTEgMGgybTQgMGgxbTEgMGgxbTIgMGgybTEgMGgxbTMgMGgxbTEgMGgzbTEgMGgxbS0zMyAxaDFtMSAwaDNtMSAwaDFtMyAwaDFtMiAwaDJtMiAwaDFtMiAwaDJtMiAwaDFtMSAwaDFtMSAwaDNtMSAwaDFtLTMzIDFoMW01IDBoMW0yIDBoMW0xIDBoMW0xIDBoMm0yIDBoMW0xIDBoMm0xIDBoMW0zIDBoMW01IDBoMW0tMzMgMWg3bTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGgxbTEgMGg3bS0yNSAxaDNtMSAwaDFtNCAwaDJtMSAwaDFtMiAwaDFtLTI0IDFoMW0xIDBoMm0xIDBoM20xIDBoMW0xIDBoMW0yIDBoMW0xIDBoNG0xIDBoMW0xIDBoMm0xIDBoMW0yIDBoMW0xIDBoMm0tMjkgMWgybTQgMGgzbTMgMGgxbTEgMGgybTMgMGgxbTIgMGgybTEgMGgybTEgMGgxbS0zMyAxaDFtMyAwaDRtMiAwaDNtMSAwaDFtMSAwaDJtNCAwaDRtMSAwaDNtMSAwaDJtLTMxIDFoMm0xIDBoMW02IDBoM20xIDBoMW0xIDBoMW0xIDBoMW0zIDBoMW0xIDBoMm0xIDBoMW0yIDBoMW0tMzMgMWgxbTMgMGgzbTIgMGg0bTIgMGgxbTIgMGgybTIgMGgxbTEgMGgybTEgMGgzbS0yOSAxaDJtMSAwaDFtMyAwaDFtMSAwaDFtMiAwaDFtMiAwaDFtMSAwaDFtMiAwaDFtMiAwaDFtNCAwaDNtLTMxIDFoMTBtNCAwaDRtMiAwaDFtNCAwaDFtMiAwaDFtLTMwIDFoMW0xIDBoMW0yIDBoMW0xIDBoNG01IDBoMW0yIDBoNW0xIDBoM20xIDBoMm0tMzEgMWgxbTEgMGgxbTMgMGgxbTEgMGgybTEgMGgybTEgMGgybTIgMGg1bTIgMGgybTEgMGgzbS0yOSAxaDFtMiAwaDFtMSAwaDJtMSAwaDJtMyAwaDFtMSAwaDFtMiAwaDdtMSAwaDJtMiAwaDFtLTMwIDFoMW0yIDBoNG0yIDBoMW0yIDBoMW0xIDBoMW0yIDBoM200IDBoMm0xIDBoMm0tMzEgMWgxbTYgMGgxbTEgMGg3bTIgMGgxbTUgMGgybTEgMGgxbTIgMGgybS0zMyAxaDFtMiAwaDFtMiAwaDRtMSAwaDFtMSAwaDFtMSAwaDFtMiAwaDNtMSAwaDFtNCAwaDFtMSAwaDJtLTMxIDFoMW0zIDBoMW0zIDBoMW0xIDBoMW0xIDBoNG0xIDBoMm0yIDBoMW0xIDBoNG0yIDBoMm0xIDBoMW0tMzAgMWg1bTIgMGg0bTIgMGgzbTMgMGgybTMgMGgxbTIgMGgzbS0zMiAxaDFtMiAwaDFtMiAwaDFtMyAwaDRtMSAwaDFtMSAwaDJtMiAwaDFtMiAwaDVtMiAwaDFtLTMzIDFoMW0yIDBoMW0yIDBoMW0xIDBoMW0yIDBoMm0xIDBoMm0xIDBoMm0zIDBoMW0xIDBoNW0yIDBoMm0tMjUgMWgxbTEgMGgxbTMgMGg0bTEgMGgxbTQgMGgxbTMgMGgybS0zMCAxaDdtMSAwaDJtMSAwaDJtMyAwaDFtMiAwaDFtMiAwaDNtMSAwaDFtMSAwaDFtLTI5IDFoMW01IDBoMW0xIDBoMW0xIDBoM202IDBoM20xIDBoMm0zIDBoM20tMzEgMWgxbTEgMGgzbTEgMGgxbTIgMGgybTMgMGgxbTIgMGgxbTEgMGgybTIgMGg2bTEgMGgzbS0zMyAxaDFtMSAwaDNtMSAwaDFtMSAwaDJtMSAwaDFtMSAwaDJtMiAwaDhtMiAwaDFtMSAwaDRtLTMzIDFoMW0xIDBoM20xIDBoMW0xIDBoM202IDBoMW0xIDBoMW0yIDBoMm0yIDBoMm0tMjggMWgxbTUgMGgxbTIgMGgybTEgMGgxbTEgMGg2bTIgMGgxbTEgMGgxbTEgMGgzbTMgMGgxbS0zMyAxaDdtMSAwaDRtMyAwaDFtMSAwaDJtMiAwaDFtMSAwaDFtMSAwaDFtMiAwaDFtMSAwaDEiLz48L3N2Zz4K"};</script>
+
+<script id="cfg">
+const CFG = {
+  gpt:{ name:"RNAi Precision Crop Designer",
+        url:"https://chatgpt.com/g/g-EXAMPLE-rnai-precision-crop-designer",
+        action_base_url:null },
+  archetype:"pipeline-designer",
+  stages:[
+    ["Target gene identification","Transcriptome analysis to find key genes for the trait.","#2563eb"],
+    ["dsRNA design","AI models generate gene-specific dsRNA sequences.","#16a34a"],
+    ["Off-target analysis","BLAST screening to ensure high specificity.","#d97706"],
+    ["Secondary structure check","Predict dsRNA stability and accessibility.","#dc2626"],
+    ["Efficacy prediction","ML model predicts silencing efficiency.","#7c3aed"],
+    ["Experimental validation","Wet-lab validation in model plants.","#0d9488"],
+    ["Results & interpretation","Analyze data and derive biological insights.","#6366f1"]
+  ],
+  inputs:[
+    {id:"gc",   label:"GC content",        type:"slider", def:48, min:25, max:70, step:1,  unit:"%"},
+    {id:"len",  label:"Construct length",  type:"slider", def:420, min:100, max:800, step:10, unit:" bp"},
+    {id:"dose", label:"Applied dose",      type:"slider", def:40, min:1,  max:120, step:1,  unit:" ng/µL"},
+    {id:"strin",label:"BLAST stringency",  type:"slider", def:70, min:40, max:100, step:1,  unit:"%"},
+    {id:"temp", label:"Field temperature", type:"slider", def:24, min:8,  max:40, step:1,  unit:"°C"},
+    {id:"crop", label:"Host crop",         type:"select", def:"maize", options:["maize","cassava","tomato","cowpea"]}
+  ],
+
+  /* the one piece of real domain thinking per build — deterministic, transparent, labeled */
+  mockRun(s){
+    const gc=+s.gc, len=+s.len, dose=+s.dose, strin=+s.strin, temp=+s.temp;
+    // structure: GC near 50% and moderate length => accessible, stable duplex
+    const gcPen  = Math.abs(gc-50)/25;                       // 0 good .. 1 poor
+    const lenPen = Math.abs(Math.log(len/400))/Math.log(2);  // optimum ~400bp
+    const stability = Math.max(0, 1 - .55*gcPen - .35*Math.min(1,lenPen));
+    // off-target: falls with stringency, rises with length
+    const hits = Math.max(0, Math.round((len/40) * Math.pow((100-strin)/40, 1.7)));
+    const specificity = 1/(1+hits/6);
+    // efficacy: saturating dose-response, gated by stability & specificity, temp-modulated
+    const tempFac = Math.exp(-Math.pow((temp-26)/11,2));     // peak uptake ~26C
+    const ec50 = 18 + 30*(1-stability);
+    const doseResp = dose/(dose+ec50);
+    const eff = Math.max(0, Math.min(1, doseResp * (0.45+0.55*stability) * (0.55+0.45*specificity) * (0.6+0.4*tempFac)));
+    // environment: persistence and non-target exposure
+    const persist = Math.max(1, 14*Math.exp(-(temp-8)/16));  // days of soil persistence
+    const nontarget = Math.min(1, (hits/25)*0.7 + (persist/14)*0.3);
+    const band = nontarget<0.33 ? "LOW" : nontarget<0.66 ? "MODERATE" : "HIGH";
+    return { eff, stability, specificity, hits, ec50, persist, nontarget, band, tempFac,
+             score:eff, lambda:len,
+             factors:{stability, specificity, dose_response:doseResp, temperature:tempFac},
+             weights:{stability:.3, specificity:.3, dose_response:.25, temperature:.15} };
+  },
+  promptTemplate(s){
+    return `Design and screen an RNAi construct for ${s.crop}.\n`+
+`GC content: ${s.gc}%\nConstruct length: ${s.len} bp\nApplied dose: ${s.dose} ng/uL\n`+
+`BLAST stringency: ${s.strin}%\nField temperature: ${s.temp} C\n\n`+
+`Walk the seven-stage pipeline: target identification, dsRNA design, off-target analysis, `+
+`secondary structure, efficacy prediction, experimental validation, interpretation. `+
+`Flag any off-target or non-target-organism risk and recommend mitigations.`;
+  }
+};
+</script>
+
+<script>
+/* ================= BUS ================= */
+const Bus=(()=>{const st={},subs=[];return{
+  set(p){Object.assign(st,p);subs.forEach(f=>f(st));},get(){return{...st};},
+  subscribe(f){subs.push(f);f(st);}};})();
+
+/* ================= helpers ================= */
+function saveBlob(b,n){const u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),400);}
+function openLink(u){window.open(u,"_blank","noopener");}
+const toCSV=(h,r)=>h.join(",")+"\n"+r.map(x=>x.join(",")).join("\n");
+function C(cv){const x=cv.getContext("2d");x.clearRect(0,0,cv.width,cv.height);return x;}
+function frame(x,W,H,p){x.strokeStyle="#e2e8f0";x.lineWidth=1;x.beginPath();
+  x.moveTo(p,H-p);x.lineTo(W-2,H-p);x.moveTo(p,2);x.lineTo(p,H-p);x.stroke();}
+function curve(x,pts,W,H,p,col,fill){
+  const mx=Math.max(...pts.map(q=>q[1]))||1;
+  x.strokeStyle=col;x.lineWidth=2;x.beginPath();
+  pts.forEach(([a,b],i)=>{const X=p+a*(W-p-4),Y=(H-p)-(b/mx)*(H-p-6);i?x.lineTo(X,Y):x.moveTo(X,Y);});
+  x.stroke();
+  if(fill){x.lineTo(W-4,H-p);x.lineTo(p,H-p);x.closePath();x.fillStyle=fill;x.fill();}
+  return mx;}
+
+/* ================= QR ================= */
+["paper","gpt","app"].forEach(k=>{const el=document.getElementById("qr-"+k); if(el&&typeof QR!=="undefined") el.src=QR[k];});
+
+/* ================= WHEEL (7 clickable stages) ================= */
+let STAGE=0;
+const segs=document.getElementById("segs");
+const CX=280,CY=280,R0=132,R1=246;
+CFG.stages.forEach((st,i)=>{
+  const a0=(i/7)*2*Math.PI - Math.PI/2 + .035, a1=((i+1)/7)*2*Math.PI - Math.PI/2 - .035;
+  const P=(r,a)=>[CX+r*Math.cos(a),CY+r*Math.sin(a)];
+  const [x0,y0]=P(R0,a0),[x1,y1]=P(R1,a0),[x2,y2]=P(R1,a1),[x3,y3]=P(R0,a1);
+  const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+  g.setAttribute("class","seg"); g.setAttribute("tabindex","0");
+  g.setAttribute("role","button"); g.setAttribute("aria-label",`Stage ${i+1}: ${st[0]}`);
+  const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+  path.setAttribute("d",`M${x0} ${y0} L${x1} ${y1} A${R1} ${R1} 0 0 1 ${x2} ${y2} L${x3} ${y3} A${R0} ${R0} 0 0 0 ${x0} ${y0} Z`);
+  path.setAttribute("fill",st[2]); path.setAttribute("fill-opacity",".10");
+  path.setAttribute("stroke",st[2]); path.setAttribute("stroke-width","1.4");
+  g.appendChild(path);
+  const am=(a0+a1)/2, [lx,ly]=P((R0+R1)/2, am);
+  const t1=document.createElementNS("http://www.w3.org/2000/svg","text");
+  t1.setAttribute("x",lx);t1.setAttribute("y",ly-4);t1.setAttribute("text-anchor","middle");
+  t1.setAttribute("font-size","10.5");t1.setAttribute("font-weight","700");t1.setAttribute("fill",st[2]);
+  t1.textContent=`${i+1}. `+st[0].split(" ").slice(0,2).join(" ");
+  const t2=document.createElementNS("http://www.w3.org/2000/svg","text");
+  t2.setAttribute("x",lx);t2.setAttribute("y",ly+10);t2.setAttribute("text-anchor","middle");
+  t2.setAttribute("font-size","9");t2.setAttribute("fill","#64748b");
+  t2.textContent=st[0].split(" ").slice(2).join(" ")||"stage";
+  g.appendChild(t1);g.appendChild(t2);
+  const pick=()=>{STAGE=i;Bus.set({stage:i});};
+  g.addEventListener("click",pick);
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();}});
+  g._path=path; segs.appendChild(g);
+});
+function paintWheel(){
+  [...segs.children].forEach((g,i)=>{
+    g._path.setAttribute("fill-opacity", i===STAGE ? ".55" : ".10");
+    g._path.setAttribute("stroke-width", i===STAGE ? "2.6" : "1.4");
+  });
+  document.getElementById("wheel-stage").textContent=`stage ${STAGE+1} · ${CFG.stages[STAGE][0].toLowerCase()}`;
+  [...document.querySelectorAll(".step")].forEach((s,i)=>s.classList.toggle("on",i===STAGE));
+}
+
+/* ================= LEFT: methodology steps drive the wheel ================= */
+const stepsEl=document.getElementById("steps");
+CFG.stages.forEach((st,i)=>{
+  const d=document.createElement("div"); d.className="step"; d.tabIndex=0;
+  d.innerHTML=`<div class="num">${i+1}</div><div><b>${st[0]}</b><span>${st[1]}</span></div>`;
+  const pick=()=>{STAGE=i;Bus.set({stage:i});};
+  d.onclick=pick; d.onkeydown=e=>{if(e.key==="Enter"){pick();}};
+  stepsEl.appendChild(d);
+});
+
+/* ================= CENTER CORE (the Custom GPT) ================= */
+CFG.mode = CFG.gpt.action_base_url ? "live" : "deeplink";
+document.getElementById("modeTag").textContent = CFG.mode==="live" ? "live · action" : "deep-link";
+const ctr=document.getElementById("controls"), init={stage:0};
+CFG.inputs.forEach(inp=>{ init[inp.id]=inp.def;
+  const w=document.createElement("div"); w.className="f";
+  if(inp.type==="slider"){
+    w.innerHTML=`<label>${inp.label}<span class="v">${inp.def}${inp.unit||""}</span></label>
+      <input type="range" min="${inp.min}" max="${inp.max}" step="${inp.step||1}" value="${inp.def}" aria-label="${inp.label}">`;
+    w.querySelector("input").oninput=e=>{const v=+e.target.value;
+      w.querySelector(".v").textContent=v+(inp.unit||""); Bus.set({[inp.id]:v});};
+  } else {
+    w.innerHTML=`<label>${inp.label}</label><select aria-label="${inp.label}">`+
+      inp.options.map(o=>`<option ${o===inp.def?"selected":""}>${o}</option>`).join("")+`</select>`;
+    w.querySelector("select").onchange=e=>Bus.set({[inp.id]:e.target.value});
+  }
+  ctr.appendChild(w);
+});
+
+async function runCore(){
+  const s=Bus.get(), a=document.getElementById("answer");
+  if(CFG.mode==="live"){
+    a.textContent="Calling the GPT action…";
+    try{
+      const r=await fetch(CFG.gpt.action_base_url+"/run",{method:"POST",
+        headers:{"Content-Type":"application/json"},body:JSON.stringify(s)});
+      if(!r.ok) throw new Error("backend "+r.status);
+      const o=await r.json(); Bus.set({result:o}); show(o,false); return;
+    }catch(e){ /* fall through to local */ }
+  }
+  const o=CFG.mockRun(s); Bus.set({result:o}); show(o,true);
+  navigator.clipboard&&navigator.clipboard.writeText(CFG.promptTemplate(s));
+}
+function show(o,local){
+  const c=o.nontarget<0.33?"#16a34a":o.nontarget<0.66?"#d97706":"#dc2626";
+  document.getElementById("answer").innerHTML=
+    `<span class="badge" style="background:#7c3aed">silencing ${(o.eff*100).toFixed(1)}%</span> `+
+    `<span class="badge" style="background:${c};margin-left:4px">non-target ${o.band}</span><br>`+
+    `${o.hits} predicted off-target hit${o.hits===1?"":"s"} · EC50 ≈ ${o.ec50.toFixed(0)} ng/µL · `+
+    `soil persistence ≈ ${o.persist.toFixed(1)} days.<br>`+
+    (local ? `<span style="color:#64748b">Local model — prompt copied to your clipboard. Open the GPT for the authoritative screen.</span>`
+           : `<span style="color:#64748b">Live GPT action result.</span>`);
+}
+function openGPT(){ navigator.clipboard&&navigator.clipboard.writeText(CFG.promptTemplate(Bus.get()));
+  openLink(CFG.gpt.url); }
+function runWorkflow(){
+  let i=0; const t=setInterval(()=>{ STAGE=i; Bus.set({stage:i}); if(++i>6){clearInterval(t); runCore();} }, 380);
+}
+
+/* ================= MORPHIC PANELS ================= */
+const PANELS=[];
+
+/* 1 — dsRNA design simulator: deterministic sequence from gc + len */
+PANELS.push({ id:"design", cv:document.getElementById("cv-design"),
+  render(s){
+    const gc=+s.gc, len=+s.len;
+    // deterministic PRNG so the same inputs always yield the same construct
+    let seed = (gc*7919 + len*104729) >>> 0;
+    const rnd=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
+    let seq=""; for(let i=0;i<len;i++){ const isGC = rnd() < gc/100;
+      seq += isGC ? (rnd()<.5?"G":"C") : (rnd()<.5?"A":"T"); }
+    document.getElementById("seq").textContent = seq.slice(0,180) + (len>180?"…":"");
+    // sliding-window GC track
+    const W=this.cv.width,H=this.cv.height,x=C(this.cv), win=Math.max(10,Math.floor(len/40)), pts=[], rows=[];
+    for(let i=0;i+win<=len;i+=Math.max(1,Math.floor(len/60))){
+      const seg=seq.slice(i,i+win);
+      const g=(seg.match(/[GC]/g)||[]).length/win;
+      pts.push([i/(len-win||1), g]); rows.push([i, (g*100).toFixed(1)]);
+    }
+    x.fillStyle="#f8fafc"; x.fillRect(0,0,W,H);
+    // 50% reference line
+    x.strokeStyle="#cbd5e1"; x.setLineDash([3,3]); x.beginPath();
+    x.moveTo(0,H*0.5); x.lineTo(W,H*0.5); x.stroke(); x.setLineDash([]);
+    curve(x,pts.map(([a,b])=>[a,b]),W,H,2,"#16a34a","rgba(22,163,74,.12)");
+    const actual=(seq.match(/[GC]/g)||[]).length/len*100;
+    const o=s.result||CFG.mockRun(s);
+    document.getElementById("ro-design").textContent =
+      `${len} bp · GC ${actual.toFixed(1)}% · duplex stability ${(o.stability*100).toFixed(0)}%`;
+    this._seq=seq; this._csv=toCSV(["window_start","gc_percent"],rows);
+  },
+  export(){ return { png:this.cv, csv:this._csv,
+    json:{sequence:this._seq, inputs:Bus.get()} }; }
+});
+
+/* 2 — off-target: BLAST hits vs stringency */
+PANELS.push({ id:"offtarget", cv:document.getElementById("cv-off"),
+  render(s){
+    const W=this.cv.width,H=this.cv.height,x=C(this.cv),p=22; frame(x,W,H,p);
+    const len=+s.len, cur=+s.strin, rows=[];
+    const hitsAt=st=>Math.max(0,(len/40)*Math.pow((100-st)/40,1.7));
+    const mx=Math.max(1,hitsAt(40));
+    const pts=[]; for(let st=40; st<=100; st+=2){ const h=hitsAt(st);
+      pts.push([(st-40)/60, h]); rows.push([st, h.toFixed(2)]); }
+    curve(x,pts,W,H,p,"#d97706","rgba(217,119,6,.12)");
+    // current stringency marker
+    const mxv=(cur-40)/60, X=p+mxv*(W-p-4), Y=(H-p)-(hitsAt(cur)/mx)*(H-p-6);
+    x.strokeStyle="#dc2626"; x.setLineDash([4,3]); x.beginPath(); x.moveTo(X,2); x.lineTo(X,H-p); x.stroke(); x.setLineDash([]);
+    x.fillStyle="#dc2626"; x.beginPath(); x.arc(X,Y,3.5,0,7); x.fill();
+    x.fillStyle="#64748b"; x.font="9.5px sans-serif"; x.textAlign="left";
+    x.fillText("stringency 40% → 100%", p+2, H-6);
+    const o=s.result||CFG.mockRun(s);
+    document.getElementById("ro-off").textContent =
+      `${o.hits} hit${o.hits===1?"":"s"} at ${cur}% stringency · specificity ${(o.specificity*100).toFixed(0)}%`;
+    this._csv=toCSV(["stringency_pct","predicted_hits"],rows);
+  },
+  export(){ return { png:this.cv, csv:this._csv }; }
+});
+
+/* 3 — efficacy: dose–response with EC50 and current dose */
+PANELS.push({ id:"efficacy", cv:document.getElementById("cv-eff"),
+  render(s){
+    const W=this.cv.width,H=this.cv.height,x=C(this.cv),p=22; frame(x,W,H,p);
+    const o=s.result||CFG.mockRun(s), rows=[];
+    const gate=(0.45+0.55*o.stability)*(0.55+0.45*o.specificity)*(0.6+0.4*o.tempFac);
+    const at=d=>(d/(d+o.ec50))*gate;
+    const pts=[]; for(let d=0; d<=120; d+=2){ const e=at(d); pts.push([d/120,e]); rows.push([d,(e*100).toFixed(2)]); }
+    curve(x,pts,W,H,p,"#7c3aed","rgba(124,58,237,.12)");
+    const mx=Math.max(...pts.map(q=>q[1]))||1;
+    // EC50 marker
+    const ex=p+(o.ec50/120)*(W-p-4);
+    x.strokeStyle="#a78bfa"; x.setLineDash([3,3]); x.beginPath(); x.moveTo(ex,2); x.lineTo(ex,H-p); x.stroke(); x.setLineDash([]);
+    x.fillStyle="#a78bfa"; x.font="9.5px sans-serif"; x.textAlign="left"; x.fillText("EC50", ex+3, 12);
+    // current dose
+    const dx=p+(Math.min(120,+s.dose)/120)*(W-p-4), dy=(H-p)-(at(+s.dose)/mx)*(H-p-6);
+    x.fillStyle="#7c3aed"; x.beginPath(); x.arc(dx,dy,4,0,7); x.fill();
+    x.fillStyle="#64748b"; x.fillText("dose 0 → 120 ng/µL", p+2, H-6);
+    document.getElementById("ro-eff").textContent =
+      `${(o.eff*100).toFixed(1)}% silencing at ${s.dose} ng/µL · EC50 ${o.ec50.toFixed(0)}`;
+    document.getElementById("modelPct").textContent = (o.eff*100).toFixed(1)+"%";
+    document.getElementById("wheel-eff").textContent = `predicted silencing ${(o.eff*100).toFixed(1)}%`;
+    this._csv=toCSV(["dose_ng_per_uL","silencing_pct"],rows);
+  },
+  export(){ return { png:this.cv, csv:this._csv }; }
+});
+
+/* 4 — environmental impact: persistence decay + non-target exposure band */
+PANELS.push({ id:"environment", cv:document.getElementById("cv-env"),
+  render(s){
+    const W=this.cv.width,H=this.cv.height,x=C(this.cv),p=22; frame(x,W,H,p);
+    const o=s.result||CFG.mockRun(s), rows=[];
+    const pts=[]; for(let d=0; d<=21; d++){ const r=Math.exp(-d/Math.max(.5,o.persist));
+      pts.push([d/21, r]); rows.push([d,(r*100).toFixed(2)]); }
+    const col = o.nontarget<0.33 ? "#16a34a" : o.nontarget<0.66 ? "#d97706" : "#dc2626";
+    curve(x,pts,W,H,p,col,col.replace(")",",.12)").replace("#","rgba(")); // fallback below
+    // explicit fill (hex→rgba helper avoided): redraw area
+    x.globalAlpha=.10; x.fillStyle=col; x.beginPath();
+    pts.forEach(([a,b],i)=>{const X=p+a*(W-p-4),Y=(H-p)-b*(H-p-6);i?x.lineTo(X,Y):x.moveTo(X,Y);});
+    x.lineTo(W-4,H-p); x.lineTo(p,H-p); x.closePath(); x.fill(); x.globalAlpha=1;
+    // non-target exposure band
+    x.fillStyle=col; x.fillRect(W-56,6,50,14);
+    x.fillStyle="#fff"; x.font="700 9px sans-serif"; x.textAlign="center"; x.fillText(o.band,W-31,16);
+    x.fillStyle="#64748b"; x.font="9.5px sans-serif"; x.textAlign="left"; x.fillText("days after application 0 → 21", p+2, H-6);
+    document.getElementById("ro-env").textContent =
+      `persistence ${o.persist.toFixed(1)} d · non-target exposure ${(o.nontarget*100).toFixed(0)}% (${o.band})`;
+    this._csv=toCSV(["day","residual_pct"],rows);
+  },
+  export(){ return { png:this.cv, csv:this._csv }; }
+});
+
+/* ================= WIRE ================= */
+PANELS.forEach(p=>Bus.subscribe(st=>p.render(st)));
+Bus.subscribe(()=>paintWheel());
+Bus.set(init);
+
+function downloadPanel(p){ const o=p.export()||{};
+  if(o.png) o.png.toBlob(b=>saveBlob(b,`rnai-${p.id}.png`));
+  if(o.csv) saveBlob(new Blob([o.csv],{type:"text/csv"}),`rnai-${p.id}.csv`);
+  if(o.json)saveBlob(new Blob([JSON.stringify(o.json,null,2)],{type:"application/json"}),`rnai-${p.id}.json`);
+}
+function downloadAll(){ PANELS.forEach(downloadPanel); }
+document.querySelectorAll(".dl").forEach(b=>b.onclick=()=>{
+  const p=PANELS.find(x=>x.id===b.dataset.p); p&&downloadPanel(p); });
+</script>
+</body>
+</html>

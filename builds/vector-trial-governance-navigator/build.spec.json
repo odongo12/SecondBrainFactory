@@ -1,0 +1,27 @@
+{
+  "slug": "vector-trial-governance-navigator",
+  "gpt": {
+    "name": "Vector Trial Governance Navigator",
+    "description": "For regulatory-affairs leads, field-trial project managers, and Mosquito Control District partners planning a US field trial of a genetically-engineered or gene-drive mosquito product. Grounded entirely in the documented 2009-2020 regulatory and public-engagement histories of Oxitec's OX513A and MosquitoMate's ZAP male mosquito (Schairer et al. 2021, Pathogens and Global Health).",
+    "url": "PASTE_YOUR_CHATGPT_G_URL_HERE",
+    "action_base_url": null
+  },
+  "archetype": "pipeline-designer + risk-screener (straddled — pipeline shape for layout, risk-screener panels for the controversy/timeline read)",
+  "inputs": [
+    { "id": "mechanism", "label": "Product mechanism framing", "type": "select", "def": "Pesticide-like (active ingredient kills/sterilizes pest)", "options": ["Pesticide-like (active ingredient kills/sterilizes pest)", "Drug-like (something administered to the organism)"] },
+    { "id": "productType", "label": "Population effect", "type": "select", "def": "Population-suppression (RIDL / Wolbachia-style)", "options": ["Population-suppression (RIDL / Wolbachia-style)", "Population-modification / self-propagating gene drive"] },
+    { "id": "engagement", "label": "Planned public engagement mode", "type": "select", "def": "Informational meeting only (no stated decision role)", "options": ["Informational meeting only (no stated decision role)", "Meeting + designated decision-input channel", "Representative survey / deliberative poll"] },
+    { "id": "opposition", "label": "Anticipated local opposition signal", "type": "slider", "def": 20, "min": 0, "max": 100, "unit": "%" }
+  ],
+  "outputs": [
+    { "id": "pathway", "label": "Nearest historical jurisdiction pathway", "type": "label" },
+    { "id": "timelineYears", "label": "Estimated years to usable field-trial authorization", "type": "scalar" },
+    { "id": "score", "label": "Controversy-risk score", "type": "scalar" },
+    { "id": "band", "label": "Controversy-risk band", "type": "label" },
+    { "id": "factors", "label": "Risk factor contributions", "type": "table" },
+    { "id": "nearestPrecedent", "label": "Nearest historical precedent", "type": "label" },
+    { "id": "table", "label": "Precedent case detail", "type": "table" }
+  ],
+  "panels": ["stage-wheel", "verdict-gauge", "factor-bars", "decay-curve", "outcome-table"],
+  "theme_hint": "civic/editorial — federal blue-navy + warm amber (controversy) + cream/paper background, matching the companion explainer video and logo already built for this same paper (navy #16233F, amber #B9720C/#D9A441, cream #EFE7D3, paper #F6F1E4). NOT the generic cream+serif+terracotta default, and NOT a wet-lab palette."
+}

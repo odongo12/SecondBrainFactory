@@ -64,10 +64,10 @@ PanelLib["verdict-gauge"] = (cfg)=>({
   mount(el){ this.cv=Object.assign(document.createElement("canvas"),{width:360,height:200}); el.appendChild(this.cv); },
   render(s){ const o=s.result||cfg.mockRun(s), x=ctx(this.cv), W=this.cv.width,H=this.cv.height;
     const cx=W/2, cy=H*.9, r=Math.min(W*.4,H*.85);
-    for(let i=0;i<=180;i++){ const a=Math.PI-(i/180)*Math.PI, v=i/180;
+    for(let i=0;i<=180;i++){ const a=Math.PI+(i/180)*Math.PI, v=i/180;
       x.strokeStyle = v<.34?css('--pass'):v<.66?css('--amber'):css('--fail');
       x.lineWidth=16; x.beginPath(); x.arc(cx,cy,r,a-0.012,a); x.stroke(); }
-    const a=Math.PI-o.score*Math.PI;
+    const a=Math.PI+o.score*Math.PI;
     x.strokeStyle=css('--ink'); x.lineWidth=3; x.beginPath(); x.moveTo(cx,cy);
     x.lineTo(cx+Math.cos(a)*r*.86, cy+Math.sin(a)*r*.86); x.stroke();
     x.textAlign="center"; x.fillStyle=css('--ink'); x.font="700 30px sans-serif";
